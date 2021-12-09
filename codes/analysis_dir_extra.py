@@ -112,9 +112,6 @@ def processAngles(experiment, data, num_bins):
 
     sem_data_1 = sem(sem_tmp_1, axis=0, nan_policy='omit')
     sem_data_2 = sem(sem_tmp_2, axis=0, nan_policy='omit')
-    
-    #sem_data_1 = np.nanstd(sem_tmp_1, axis=0)
-    #sem_data_2 = np.nanstd(sem_tmp_2, axis=0)
 
     norm_data_1 = avg_data_1.sum(axis=1).reshape(-1,1)
     norm_data_2 = avg_data_2.sum(axis=1).reshape(-1,1)
@@ -126,16 +123,16 @@ def processAngles(experiment, data, num_bins):
     prob_sem_2 = sem_data_2 / norm_data_2
 
     tmp = np.nansum(data[group_1], axis=3)
-    freq_tmp = np.nanmean(tmp, axis=1)
-    freq_data_1 = np.nanmean(freq_tmp, axis=0)
-    freq_sem_1 = sem(freq_tmp, axis=0, nan_policy='omit')
-    freq_std_1 = np.nanstd(freq_tmp, axis=0)
+    freq_tmp_1 = np.nanmean(tmp, axis=1)
+    freq_data_1 = np.nanmean(freq_tmp_1, axis=0)
+    freq_sem_1 = sem(freq_tmp_1, axis=0, nan_policy='omit')
+    freq_std_1 = np.nanstd(freq_tmp_1, axis=0)
 
     tmp = np.nansum(data[group_2], axis=3)
-    freq_tmp = np.nanmean(tmp, axis=1)
-    freq_data_2 = np.nanmean(freq_tmp, axis=0)
-    freq_sem_2 = sem(freq_tmp, axis=0, nan_policy='omit')
-    freq_std_2 = np.nanstd(freq_tmp, axis=0)
+    freq_tmp_2 = np.nanmean(tmp, axis=1)
+    freq_data_2 = np.nanmean(freq_tmp_2, axis=0)
+    freq_sem_2 = sem(freq_tmp_2, axis=0, nan_policy='omit')
+    freq_std_2 = np.nanstd(freq_tmp_2, axis=0)
 
     to_save = {}
     to_save['mean_1'] = avg_data_1
@@ -147,9 +144,11 @@ def processAngles(experiment, data, num_bins):
     to_save['prob_2'] = prob_data_2
     to_save['prob_sem_2'] = prob_sem_2
     #added for SEM
+    to_save['freq_1_raw'] = freq_tmp_1
     to_save['freq_1'] = freq_data_1
     to_save['freq_sem_1'] = freq_sem_1
     to_save['freq_std_1'] = freq_std_1
+    to_save['freq_2_raw'] = freq_tmp_2
     to_save['freq_2'] = freq_data_2
     to_save['freq_sem_2'] = freq_sem_2
     to_save['freq_std_2'] = freq_std_2
@@ -224,7 +223,7 @@ def plotHistogram(experiment, num_bins, prob=False):
             ax.set_ylabel(f'Frequency (mHz)')
         ax.set_title(f'{id_map[str(stimulus)][0]} Stimulus {id_map[str(stimulus)][1]} %, (Bin: 5$^\circ$)')
         ax.legend()
-        sns.color_palette("PuRd", as_cmap=True)
+        #sns.color_palette("PuRd", as_cmap=True)
         ax.grid(False)
         sns.set_style('white')
         sns.set_style('ticks')
@@ -301,18 +300,26 @@ def boutFrequency(experiment, num_bins):
     freq_2 = tmp['freq_2']
     sem_1 = tmp['freq_sem_1']
     sem_2 = tmp['freq_sem_2']
+    raw_1 = tmp['freq_1_raw']
+    raw_2 = tmp['freq_2_raw']
     
     x_range = range(freq_1.shape[0])
 
     sns.set_style('white')
     sns.set_style('ticks')
-    width = 1
 
     f, ax = plt.subplots()
 
-    ax.bar([e + 1. for e in list(x_range)], freq_1, yerr=sem_1, capsize=5.0, label='control', width=0.4, color = 'xkcd:greyish blue')
+    ax.bar([e + 1. for e in list(x_range)], freq_1, yerr=sem_1, capsize=5.0, label='control', alpha=0.5, width=0.4, color = 'xkcd:greyish blue')
     ax.bar([e + 1.4 for e in list(x_range)], freq_2, yerr=sem_2, ecolor='grey', capsize=3.0, alpha=0.7, label='sleep deprived', width=0.4, color = 'xkcd:aquamarine')
+    
+    for i in x_range:
+        x_1 = [i+1] * raw_1.shape[0]
+        x_2 = [i+1.4] * raw_2.shape[0]
 
+        ax.scatter(x_1, raw_1[:,i], color = 'grey')
+        ax.scatter(x_2, raw_2[:,i], color = 'grey')
+    
     ax.set_xlabel('Stimulus')
     ax.set_ylabel('Total number of bouts')
     ax.set_title('Total response to stimulus')
@@ -333,30 +340,50 @@ def boutFrequency(experiment, num_bins):
     if stimuli % 2 == 0:
 
         half = stimuli // 2
-        
+
+        raw_1 = (raw_1[:,:half] + raw_1[:,half:]) / 2.0
+        raw_2 = (raw_2[:,:half] + raw_2[:,half:]) / 2.0
+        '''
         freq_1 = (freq_1[:half] + freq_1[half:]) / 2.0
         freq_2 = (freq_2[:half] + freq_2[half:]) / 2.0
-
+        
         sem_1 = np.sqrt((sem_1[:half]**2 + sem_1[half:]**2) / 2.0)
         sem_2 = np.sqrt((sem_2[:half]**2 + sem_2[half:]**2) / 2.0)
-
+        '''
+        
     else:
 
         half = (stimuli - 1) // 2
-        
+
+        raw_1 = (raw_1[:,:half] + raw_1[:,half:-1]) / 2.0
+        raw_2 = (raw_2[:,:half] + raw_2[:,half:-1]) / 2.0
+        '''
         freq_1 = (freq_1[:half] + freq_1[half:-1]) / 2.0
         freq_2 = (freq_2[:half] + freq_2[half:-1]) / 2.0
-
+        
         sem_1 = np.sqrt((sem_1[:half]**2 + sem_1[half:-1]**2) / 2.0)
         sem_2 = np.sqrt((sem_2[:half]**2 + sem_2[half:-1]**2) / 2.0)
+        '''
+
+    freq_1 = np.nanmean(raw_1, axis=0)
+    sem_1 = sem(raw_1, axis=0, nan_policy='omit')
+    freq_2 = np.nanmean(raw_2, axis=0)
+    sem_2 = sem(raw_2, axis=0, nan_policy='omit')
 
     x_range = range(half)
     
     f, ax = plt.subplots()
 
-    ax.bar([e + 1. for e in list(x_range)], freq_1, yerr=sem_1, capsize=5.0, label='control', width=0.4, color = 'xkcd:greyish blue')
+    ax.bar([e + 1. for e in list(x_range)], freq_1, yerr=sem_1, capsize=5.0, label='control', alpha=0.5, width=0.4, color = 'xkcd:greyish blue')
     ax.bar([e + 1.4 for e in list(x_range)], freq_2, yerr=sem_2, ecolor='grey', capsize=3.0, alpha=0.7, label='sleep deprived', width=0.4, color = 'xkcd:aquamarine')
 
+    for i in x_range:
+        x_1 = [i+1] * raw_1.shape[0]
+        x_2 = [i+1.4] * raw_2.shape[0]
+
+        ax.scatter(x_1, raw_1[:,i], color = 'grey')
+        ax.scatter(x_2, raw_2[:,i], color = 'grey')
+    
     ax.set_xlabel('Stimulus')
     ax.set_ylabel('Total number of bouts')
     ax.set_title('Total response to stimulus')
