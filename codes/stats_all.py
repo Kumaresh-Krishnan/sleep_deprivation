@@ -18,8 +18,9 @@ import hdf5storage as hdf
 import path
 
 import pandas as pd
+import pingouin as pg
 
-def makeDf(data_1, data_2, stimuli):
+def makeDf(data_1, data_2, stimuli, rename):
 
     if stimuli % 2 == 0:
 
@@ -37,9 +38,14 @@ def makeDf(data_1, data_2, stimuli):
 
     
     stacked = np.concatenate((data_1, data_2), axis=0)
+    col_names = [str(i) for i in range(stacked.shape[1])]
 
-    df_data = pd.DataFrame(stacked, columns=[str(i) for i in range(stacked.shape[1])])
-    df_data['group'] = np.concatenate(([1]*data_1.shape[0], [2]*data_2.shape[0]))
+    df_temp = pd.DataFrame(stacked, columns=col_names)
+    df_temp['Group'] = np.concatenate(([1]*data_1.shape[0], [2]*data_2.shape[0]))
+    df_temp['ID'] = np.concatenate((np.arange(data_1.shape[0]), np.arange(data_2.shape[0])))
+    
+    df_data = df_temp.melt(id_vars=['Group', 'ID'], value_vars=col_names, \
+        var_name='Stimulus', value_name=rename)
 
     return df_data
 
@@ -49,10 +55,14 @@ def totalBout(dpath, stimuli):
     data_1 = tmp['freq_1_raw']
     data_2 = tmp['freq_2_raw']
 
-    df_data = makeDf(data_1, data_2, stimuli)
+    df_data = makeDf(data_1, data_2, stimuli, 'Frequency')
+
+    #sns.boxplot(x='Stimulus', y='Frequency', hue='Group', data=df_data, palette='Set3')
+
+    results = pg.rm_anova(dv='Frequency', within=['Stimulus','Group'], subject='ID', data=df_data, detailed=True)
+    print(results)
     
     return 0
-
 
 def correctness(dpath, stimuli):
 
@@ -60,7 +70,12 @@ def correctness(dpath, stimuli):
     data_1 = tmp['correct_1_raw']
     data_2 = tmp['correct_2_raw']
 
-    df_data = makeDf(data_1, data_2, stimuli)
+    df_data = makeDf(data_1, data_2, stimuli, 'Correctness')
+
+    #sns.boxplot(x='Stimulus', y='Correctness', hue='Group', data=df_data, palette='Set3')
+
+    results = pg.rm_anova(dv='Correctness', within=['Stimulus','Group'], subject='ID', data=df_data, detailed=True)
+    print(results)
        
     return 0
     
@@ -70,15 +85,26 @@ def performance(dpath, stimuli):
 
     return 0
 
+def dummy():
+
+    df=pd.read_csv("https://reneshbedre.github.io/assets/posts/anova/plants_leaves_two_within.csv")
+    print(df); #input()
+    #res = pg.rm_anova(dv='num_leaves', within=['time', 'year'], subject='plants', data=df, detailed=True)
+
+    #print(res)
+
+    return 0
+
 if __name__ == '__main__':
 
     experiment = 'd7_07_01_2021'
     stimuli = 8
 
     dpath = path.Path() / '..' / experiment
-    
+
+    #dummy()
     totalBout(dpath, stimuli)
-    correctness(dpath, stimuli)
-    performance(dpath, stimuli)
+    #correctness(dpath, stimuli)
+    #performance(dpath, stimuli)
 
     sys.exit()
