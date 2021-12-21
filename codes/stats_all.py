@@ -66,7 +66,7 @@ def totalBout(dpath, stimuli):
 
 def correctness(dpath, stimuli):
 
-    tmp = hdf.loadmat(dpath / 'data_correctness.mat')
+    tmp = hdf.loadmat(dpath / 'data_correctness_72.mat')
     data_1 = tmp['correct_1_raw']
     data_2 = tmp['correct_2_raw']
 
@@ -85,16 +85,6 @@ def performance(dpath, stimuli):
 
     return 0
 
-def dummy():
-
-    df=pd.read_csv("https://reneshbedre.github.io/assets/posts/anova/plants_leaves_two_within.csv")
-    print(df); #input()
-    #res = pg.rm_anova(dv='num_leaves', within=['time', 'year'], subject='plants', data=df, detailed=True)
-
-    #print(res)
-
-    return 0
-
 if __name__ == '__main__':
 
     experiment = 'd7_07_01_2021'
@@ -102,9 +92,8 @@ if __name__ == '__main__':
 
     dpath = path.Path() / '..' / experiment
 
-    #dummy()
     totalBout(dpath, stimuli)
-    #correctness(dpath, stimuli)
+    correctness(dpath, stimuli)
     #performance(dpath, stimuli)
 
     sys.exit()
