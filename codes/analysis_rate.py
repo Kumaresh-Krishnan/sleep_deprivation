@@ -106,6 +106,8 @@ def processData(experiment, data):
     to_save['freq_sem_1'] = sem_data_1
     to_save['freq_2'] = freq_data_2
     to_save['freq_sem_2'] = sem_data_2
+    to_save['freq_1_raw'] = data[group_1]
+    to_save['freq_2_raw'] = data[group_2]
     
     return to_save
 

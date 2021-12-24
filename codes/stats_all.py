@@ -9,6 +9,7 @@
 
 import numpy as np
 import os, sys
+import csv
 
 import scipy.stats as ss
 import matplotlib.pyplot as plt
@@ -57,11 +58,20 @@ def totalBout(dpath, stimuli):
 
     df_data = makeDf(data_1, data_2, stimuli, 'Frequency')
 
-    #sns.boxplot(x='Stimulus', y='Frequency', hue='Group', data=df_data, palette='Set3')
+    bout_loc = df_data.loc[df_data['Stimulus'] =='0']
+    sleep = bout_loc.loc[bout_loc['Group']== 2]
+    control = bout_loc.loc[bout_loc['Group']==1]
+    stats_bout = ss.ttest_ind(sleep.Frequency, control.Frequency, equal_var=False)
+    print(stats_bout)
+
+    sns.boxplot(x='Stimulus', y='Frequency', hue='Group', data=df_data, palette='Set3')
+    #plt.show()
 
     results = pg.rm_anova(dv='Frequency', within=['Stimulus','Group'], subject='ID', data=df_data, detailed=True)
     print(results)
-    
+    save_dir = path.Path() / '..' / experiment
+    doc_name = save_dir + '/bouts_stats.xlsx'
+    results.to_excel(doc_name, index=False)
     return 0
 
 def correctness(dpath, stimuli):
@@ -71,23 +81,106 @@ def correctness(dpath, stimuli):
     data_2 = tmp['correct_2_raw']
 
     df_data = makeDf(data_1, data_2, stimuli, 'Correctness')
+    print(df_data.head())
+    save_dir = path.Path() / '..' / experiment
 
-    #sns.boxplot(x='Stimulus', y='Correctness', hue='Group', data=df_data, palette='Set3')
+    sns.boxplot(x='Stimulus', y='Correctness', hue='Group', data=df_data, palette='Set3')
+    #plt.show()
 
     results = pg.rm_anova(dv='Correctness', within=['Stimulus','Group'], subject='ID', data=df_data, detailed=True)
     print(results)
-       
+
+    doc_name = save_dir + '/correct_stats.xlsx'
+    results.to_excel(doc_name, index=False)
+
     return 0
+
+def rate24(dpath):
+
+    tmp = hdf.loadmat(dpath / 'data_rate.mat')
+    data_1 = tmp['freq_1_raw']
+    data_2 = tmp['freq_2_raw']
+
+    day_1 = data_1[:,0:14,:]
+    night = data_2[:,14:34,:]
+    day_2 = data_3[:,35:48,:]
     
+    return 0
 
 def performance(dpath, stimuli):
 
+    tmp = hdf.loadmat(dpath / 'data_72.mat')
+    data_1 = tmp['mean_1_raw']
+    data_2 = tmp['mean_2_raw']
+
+    angles = np.linspace(-180,180,72) # Num bins has not changed in years
+
+    sum_1 = data_1.sum(axis=2)
+    sum_1 = np.repeat(sum_1[:,:,np.newaxis], data_1.shape[2], axis=2)
+    sum_2 = data_2.sum(axis=2)
+    sum_2 = np.repeat(sum_2[:,:,np.newaxis], data_2.shape[2], axis=2)
+
+    prob_1 = data_1 / sum_1
+    prob_2 = data_2 / sum_2
+
+    score_1 = np.sum(prob_1 * angles, axis=2)
+    score_2 = np.sum(prob_2 * angles, axis=2)
+
+    if stimuli % 2 == 0:
+
+        half = stimuli // 2
+
+        score_1 = (score_1[:,:half] + score_1[:,half:]) / 2.0
+        score_2 = (score_2[:,:half] + score_2[:,half:]) / 2.0
+        
+    else:
+
+        half = (stimuli - 1) // 2
+
+        score_1 = (score_1[:,:half] + score_1[:,half:-1]) / 2.0
+        score_2 = (score_2[:,:half] + score_2[:,half:-1]) / 2.0
+
+    score_avg_1 = np.mean(score_1, axis=0)
+    score_avg_2 = np.mean(score_2, axis=0)
+
+    score_sem_1 = sem(score_1, axis=0, nan_policy='omit')
+    score_sem_2 = sem(score_2, axis=0, nan_policy='omit')
+
+    x_range = range(half)
+    
+    f, ax = plt.subplots()
+
+    ax.bar([e + 1. for e in list(x_range)], score_avg_1, yerr=score_sem_1, capsize=5.0, label='control', alpha=0.5, width=0.4, color = 'xkcd:greyish blue')
+    ax.bar([e + 1.4 for e in list(x_range)], score_avg_2, yerr=score_sem_2, ecolor='grey', capsize=3.0, alpha=0.7, label='sleep deprived', width=0.4, color = 'xkcd:aquamarine')
+
+    for i in x_range:
+        x_1 = [i+1] * score_1.shape[0]
+        x_2 = [i+1.4] * score_2.shape[0]
+
+        ax.scatter(x_1, score_1[:,i], color = 'grey')
+        ax.scatter(x_2, score_2[:,i], color = 'grey')
+    
+    ax.set_xlabel('Stimulus')
+    ax.set_ylabel('Performance index')
+    ax.set_title('Performance across stimuli')
+    ax.set_xticks(x_range)
+    text = [str(x) for x in x_range]
+    ax.set_xticklabels(text)
+    ax.legend()
+    ax.grid(False)
+    sns.set_style('white')
+    sns.set_style('ticks')
+    sns.despine(top=True, right=True)
+
+
+    f.savefig(dpath / f'fig_performance_index.pdf')
+    plt.close(f)
 
     return 0
 
 if __name__ == '__main__':
 
-    experiment = 'd7_07_01_2021'
+    experiment = 'd8_07_08_2021'
     stimuli = 8
 
     dpath = path.Path() / '..' / experiment
