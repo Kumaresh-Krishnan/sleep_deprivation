@@ -171,8 +171,6 @@ def main(experiment, num_bins):
 
 def plotHistogram(experiment, num_bins, prob=False):
 
-    stimuli = 8
-
     data_path = path.Path() / '..' / experiment / f'data_{num_bins}'
     tmp = hdf.loadmat(data_path)
 
@@ -192,6 +190,8 @@ def plotHistogram(experiment, num_bins, prob=False):
         save_dir = path.Path() / '..' / experiment / f'stimulus_histograms_{num_bins}'
         save_dir_db = path.Path() / '..' / experiment / f'doubled_stimulus_histograms_{num_bins}'
 
+    stimuli = data_1.shape[0]
+    
     angles = np.linspace(-180,180, num_bins)
     id_map = hdf.loadmat(path.Path() / '..' / experiment / 'ID_map.mat')
 
@@ -387,7 +387,7 @@ def boutFrequency(experiment, num_bins):
         ax.scatter(x_2, raw_2[:,i], color = 'grey')
     
     ax.set_xlabel('Stimulus')
-    ax.set_ylabel('Total number of bouts')
+    ax.set_ylabel('Total bout rate')
     ax.set_title('Total response to stimulus')
     ax.set_xticks(x_range)
     text = [str(x) for x in x_range]

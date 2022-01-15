@@ -45,7 +45,7 @@ def boutRate(raw_data, stimulus, num_bins):
 
         freq[period] = locs.sum()
 
-    return freq/normalizer
+    return freq
 
 def extractData(experiment, root):
 

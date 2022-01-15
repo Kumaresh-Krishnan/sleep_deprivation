@@ -19,7 +19,7 @@ from scipy.stats import sem
 import path
 import pickle
 
-def headingAngle(raw_data, stimulus, experiment):
+def headingAngle(raw_data, stimulus, experiment, num_bins):
 
     start = 'bouts_start_stimulus_%03d'%(stimulus)
     end = 'bouts_end_stimulus_%03d'%(stimulus)
@@ -62,12 +62,15 @@ def headingAngle(raw_data, stimulus, experiment):
         else:
             first_correct = first
 
-        return first, first_correct
+        first_hist = np.histogram(first, bins=num_bins, range=(0,1.0))
+        first_correct_hist = np.histogram(first_correct, bins=num_bins, range=(0,1.0))
+
+        return first_hist, first_correct_hist
     
     except:
         return np.nan, np.nan
 
-def extractAngles(experiment,root):
+def extractAngles(experiment,root, num_bins):
 
     info_path = path.Path() / '..' / experiment
 
@@ -80,8 +83,8 @@ def extractAngles(experiment,root):
     fish_ctr = 0
     stimuli = 8
 
-    data_first = np.full((total_fish, trials, stimuli), np.nan)
-    data_first_correct = np.full((total_fish, trials, stimuli), np.nan)
+    data_first = np.full((total_fish, trials, stimuli, num_bins), np.nan)
+    data_first_correct = np.full((total_fish, trials, stimuli, num_bins), np.nan)
 
     for day_idx, day in enumerate(days):
 
@@ -95,9 +98,9 @@ def extractAngles(experiment,root):
 
                 for stimulus in range(stimuli):
                     
-                    f_time, fc_time = headingAngle(raw_data, stimulus, experiment)
-                    data_first[fish_ctr, t, stimulus] = f_time
-                    data_first_correct[fish_ctr, t, stimulus] = fc_time
+                    f_hist, fc_hist = headingAngle(raw_data, stimulus, experiment, num_bins)
+                    data_first[fish_ctr, t, stimulus] = f_hist
+                    data_first_correct[fish_ctr, t, stimulus] = fc_hist
 
                 tmp.close()
 
@@ -117,23 +120,45 @@ def processAngles(experiment, data_first, data_first_correct):
     first_1 = data_first[group_1]
     first_2 = data_first[group_2]
 
+    tot_first_1 = np.nansum(first_1, axis=1)
+    tot_first_2 = np.nansum(first_2, axis=1)
+
+    avg_first_1 = np.nanmean(tot_first_1, axis=0)
+    avg_first_2 = np.nanmean(tot_first_2, axis=0)
+
+    sem_first_1 = sem(tot_first_1, axis=0, nan_policy='omit')
+    sem_first_2 = sem(tot_first_2, axis=0, nan_policy='omit')
+
     first_correct_1 = data_first_correct[group_1]
     first_correct_2 = data_first_correct[group_2]
 
+    tot_first_correct_1 = np.nansum(first_correct_1, axis=1)
+    tot_first_correct_2 = np.nansum(first_correct_2, axis=1)
+
+    avg_first_correct_1 = np.nanmean(tot_first_correct_1, axis=0)
+    avg_first_correct_2 = np.nanmean(tot_first_correct_2, axis=0)
+
+    sem_first_correct_1 = sem(tot_first_correct_1, axis=0, nan_policy='omit')
+    sem_first_correct_2 = sem(tot_first_correct_2, axis=0, nan_policy='omit')
+
     to_save = {}
-    to_save['first_1'] = first_1
-    to_save['first_2'] = first_2
-    to_save['first_correct_1'] = first_correct_1
-    to_save['first_correct_2'] = first_correct_2
+    to_save['avg_first_1'] = avg_first_1
+    to_save['sem_first_1'] = sem_first_1
+    to_save['avg_first_correct_1'] = avg_first_correct_1
+    to_save['sem_first_correct_1'] = sem_first_correct_1
+    to_save['avg_first_2'] = avg_first_2
+    to_save['sem_first_2'] = sem_first_2
+    to_save['avg_first_correct_2'] = avg_first_correct_2
+    to_save['sem_first_correct_2'] = sem_first_correct_2
     
     return to_save
 
-def main(experiment):
+def main(experiment, num_bins):
 
     #root = path.Path() / '..' / '..' / '..' / 'data_hanna_test_06_16_2021' # directory for data
     root = path.Path() / '..' / experiment
 
-    data_first, data_first_correct = extractAngles(experiment, root)
+    data_first, data_first_correct = extractAngles(experiment, root, num_bins)
 
     to_save = processAngles(experiment, data_first, data_first_correct)
 
@@ -142,43 +167,47 @@ def main(experiment):
 
     return 0
 
-def removeNan(arr):
-
-    arr = arr[~np.isnan(arr)]
-
-    return np.ravel(arr)
-
-def plotHistogram(experiment, prob=False):
-
-    stimuli = 8
+def plotHistogram(experiment, num_bins, prob=False):
 
     data_path = path.Path() / '..' / experiment / f'data_time'
     tmp = hdf.loadmat(data_path)
 
-    first_1 = tmp['first_1']
-    first_2 = tmp['first_2']
+    first_1 = tmp['avg_first_1']
+    first_2 = tmp['avg_first_2']
 
-    first_correct_1 = tmp['first_correct_1']
-    first_correct_2 = tmp['first_correct_2']
+    sem_first_1 = tmp['sem_first_1']
+    sem_first_2 = tmp['sem_first_2']
+
+    first_correct_1 = tmp['avg_first_correct_1']
+    first_correct_2 = tmp['avg_first_correct_2']
+
+    sem_correct_1 = tmp['sem_first_correct_1']
+    sem_correct_2 = tmp['sem_first_correct_2']
+
+    stimuli = first_1.shape[0]
 
     save_dir = path.Path() / '..' / experiment / f'time_figures'
+    save_dir_db = path.Path() / '..' / experiment / f'doubled_time_figures'
 
     id_map = hdf.loadmat(path.Path() / '..' / experiment / 'ID_map.mat')
 
     os.makedirs(save_dir, exist_ok=True)
+    os.makedirs(save_dir_db, exist_ok=True)
 
-    sns.set()    
+    sns.set()
+
+    x_vals = np.linspace(0,1.0,num_bins)
 
     for stimulus in range(stimuli):
 
         f, ax = plt.subplots()
         g, ax2 = plt.subplots()
 
-        ax.hist(removeNan(first_1[:,:,stimulus]), label='freq_ctrl', range=(0,1.0))
-        ax.hist(removeNan(first_2[:,:,stimulus]), alpha=0.7, label='freq_sleep', range=(0,1.0))
+        ax.bar(x_vals, first_1[stimulus], yerr= sem_first_1, label='control')
+        ax.bar(x_vals, first_2[stimulus], yerr= sem_first_2, alpha=0.7, label='sleep deprived')
 
-        ax2.hist(removeNan(first_correct_1[:,:,stimulus]), label='freq_ctrl', range=(0,1.0))
-        ax2.hist(removeNan(first_correct_2[:,:,stimulus]), alpha=0.7, label='freq_sleep', range=(0,1.0))
+        ax2.hist(x_vals, first_correct_1[stimulus], yerr= sem_first_correct_1, label='control')
+        ax2.hist(x_vals, first_correct_2[stimulus], yerr= sem_first_correct_2, alpha=0.7, label='sleep deprived')
         
         ax.set_xlabel(f'Time'); ax2.set_xlabel(f'Time')
         ax.set_ylabel(f'Count'); ax2.set_ylabel(f'Count')
@@ -193,14 +222,71 @@ def plotHistogram(experiment, prob=False):
         plt.close(f)
         plt.close(g)
 
+    if stimuli % 2 == 0:
+
+        half = stimuli // 2
+        
+        first_1 = (np.fliplr(first_1[:half]) + first_1[half:]) / 2.0
+        first_2 = (np.fliplr(data_2[:half]) + first_2[half:]) / 2.0
+
+        sem_first_1 = np.sqrt((np.fliplr(sem_first_1[:half])**2 + sem_first_1[half:]**2) / 2.0)
+        sem_first_2 = np.sqrt((np.fliplr(sem_first_2[:half])**2 + sem_first_2[half:]**2) / 2.0)
+
+        first_correct_1 = (np.fliplr(first_correct_1[:half]) + first_correct_1[half:]) / 2.0
+        first_correct_2 = (np.fliplr(data_2[:half]) + first_correct_2[half:]) / 2.0
+
+        sem_first_correct_1 = np.sqrt((np.fliplr(sem_first_correct_1[:half])**2 + sem_first_correct_1[half:]**2) / 2.0)
+        sem_first_correct_2 = np.sqrt((np.fliplr(sem_first_correct_2[:half])**2 + sem_first_correct_2[half:]**2) / 2.0)
+
+    else:
+
+        half = (stimuli - 1) // 2
+        
+        first_1 = (np.fliplr(first_1[:half]) + first_1[half:-1]) / 2.0
+        first_2 = (np.fliplr(first_2[:half]) + first_2[half:-1]) / 2.0
+
+        sem_first_1 = np.sqrt((np.fliplr(sem_first_1[:half])**2 + sem_first_1[half:-1]**2) / 2.0)
+        sem_first_2 = np.sqrt((np.fliplr(sem_first_2[:half])**2 + sem_first_2[half:-1]**2) / 2.0)
+
+        first_correct_1 = (np.fliplr(first_correct_1[:half]) + first_correct_1[half:-1]) / 2.0
+        first_correct_2 = (np.fliplr(first_correct_2[:half]) + first_correct_2[half:-1]) / 2.0
+
+        sem_first_correct_1 = np.sqrt((np.fliplr(sem_first_correct_1[:half])**2 + sem_first_correct_1[half:-1]**2) / 2.0)
+        sem_first_correct_2 = np.sqrt((np.fliplr(sem_first_correct_2[:half])**2 + sem_first_correct_2[half:-1]**2) / 2.0)
+
+    for stimulus in range(half):
+
+        f, ax = plt.subplots()
+        g, ax2 = plt.subplots()
+
+        ax.bar(x_vals, first_1[stimulus], yerr= sem_first_1, label='control')
+        ax.bar(x_vals, first_2[stimulus], yerr= sem_first_2, alpha=0.7, label='sleep deprived')
+
+        ax2.hist(x_vals, first_correct_1[stimulus], yerr= sem_first_correct_1, label='control')
+        ax2.hist(x_vals, first_correct_2[stimulus], yerr= sem_first_correct_2, alpha=0.7, label='sleep deprived')
+        
+        ax.set_xlabel(f'Time'); ax2.set_xlabel(f'Time')
+        ax.set_ylabel(f'Count'); ax2.set_ylabel(f'Count')
+        ax.set_title(f'{id_map[str(stimulus)][0]} Stimulus - Time to first bout')
+        ax2.set_title(f'{id_map[str(stimulus)][0]} Stimulus - Time to first correct bout')
+        ax.legend()
+        ax2.legend()
+
+        f.savefig(save_dir_db / f'fig_{stimulus}_{id_map[str(stimulus)][0]}_{id_map[str(stimulus)][1]}_first.png')
+        g.savefig(save_dir_db / f'fig_{stimulus}_{id_map[str(stimulus)][0]}_{id_map[str(stimulus)][1]}_first_correct.png')
+
+        plt.close(f)
+        plt.close(g)
+    
     return 0
 
 if __name__ == '__main__':
 
     experiment = 'd8_07_15_2021'
+    num_bins = 10
 
-    main(experiment)
-    plotHistogram(experiment)
-    plotHistogram(experiment, True)
+    main(experiment, num_bins)
+    plotHistogram(experiment, num_bins)
+    plotHistogram(experiment, num_bins, True)
 
     sys.exit(0)
