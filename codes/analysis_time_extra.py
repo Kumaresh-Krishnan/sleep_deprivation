@@ -196,7 +196,7 @@ def plotHistogram(experiment, num_bins, prob=False):
 
     sns.set()
 
-    x_vals = np.linspace(0,1.0,num_bins)
+    x_vals = np.linspace(0,3.0,num_bins)
 
     for stimulus in range(stimuli):
 
