@@ -227,13 +227,13 @@ def plotHistogram(experiment, num_bins, prob=False):
         half = stimuli // 2
         
         first_1 = (np.fliplr(first_1[:half]) + first_1[half:]) / 2.0
-        first_2 = (np.fliplr(data_2[:half]) + first_2[half:]) / 2.0
+        first_2 = (np.fliplr(first_2[:half]) + first_2[half:]) / 2.0
 
         sem_first_1 = np.sqrt((np.fliplr(sem_first_1[:half])**2 + sem_first_1[half:]**2) / 2.0)
         sem_first_2 = np.sqrt((np.fliplr(sem_first_2[:half])**2 + sem_first_2[half:]**2) / 2.0)
 
         first_correct_1 = (np.fliplr(first_correct_1[:half]) + first_correct_1[half:]) / 2.0
-        first_correct_2 = (np.fliplr(data_2[:half]) + first_correct_2[half:]) / 2.0
+        first_correct_2 = (np.fliplr(first_correct_2[:half]) + first_correct_2[half:]) / 2.0
 
         sem_first_correct_1 = np.sqrt((np.fliplr(sem_first_correct_1[:half])**2 + sem_first_correct_1[half:]**2) / 2.0)
         sem_first_correct_2 = np.sqrt((np.fliplr(sem_first_correct_2[:half])**2 + sem_first_correct_2[half:]**2) / 2.0)
