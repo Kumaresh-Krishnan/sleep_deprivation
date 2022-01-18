@@ -181,8 +181,8 @@ def plotHistogram(experiment, num_bins, prob=False):
     first_correct_1 = tmp['avg_first_correct_1']
     first_correct_2 = tmp['avg_first_correct_2']
 
-    sem_correct_1 = tmp['sem_first_correct_1']
-    sem_correct_2 = tmp['sem_first_correct_2']
+    sem_first_correct_1 = tmp['sem_first_correct_1']
+    sem_first_correct_2 = tmp['sem_first_correct_2']
 
     stimuli = first_1.shape[0]
 
