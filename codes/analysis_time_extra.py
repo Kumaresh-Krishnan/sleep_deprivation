@@ -62,8 +62,8 @@ def headingAngle(raw_data, stimulus, experiment, num_bins):
         else:
             first_correct = first
 
-        first_hist, _ = np.histogram(first, bins=num_bins, range=(0,1.0))
-        first_correct_hist, _ = np.histogram(first_correct, bins=num_bins, range=(0,1.0))
+        first_hist, _ = np.histogram(first, bins=num_bins, range=(0,3.0))
+        first_correct_hist, _ = np.histogram(first_correct, bins=num_bins, range=(0,3.0))
 
         return first_hist, first_correct_hist
     
@@ -203,11 +203,11 @@ def plotHistogram(experiment, num_bins, prob=False):
         f, ax = plt.subplots()
         g, ax2 = plt.subplots()
 
-        ax.bar(x_vals, first_1[stimulus], yerr= sem_first_1[stimulus], label='control')
-        ax.bar(x_vals, first_2[stimulus], yerr= sem_first_2[stimulus], alpha=0.7, label='sleep deprived')
+        ax.bar(x_vals, first_1[stimulus], width=0.1, yerr= sem_first_1[stimulus], label='control')
+        ax.bar(x_vals, first_2[stimulus], width=0.1, yerr= sem_first_2[stimulus], alpha=0.7, label='sleep deprived')
 
-        ax2.bar(x_vals, first_correct_1[stimulus], yerr= sem_first_correct_1[stimulus], label='control')
-        ax2.bar(x_vals, first_correct_2[stimulus], yerr= sem_first_correct_2[stimulus], alpha=0.7, label='sleep deprived')
+        ax2.bar(x_vals, first_correct_1[stimulus], width=0.1,  yerr= sem_first_correct_1[stimulus], label='control')
+        ax2.bar(x_vals, first_correct_2[stimulus], width=0.1, yerr= sem_first_correct_2[stimulus], alpha=0.7, label='sleep deprived')
         
         ax.set_xlabel(f'Time'); ax2.set_xlabel(f'Time')
         ax.set_ylabel(f'Count'); ax2.set_ylabel(f'Count')
@@ -259,11 +259,11 @@ def plotHistogram(experiment, num_bins, prob=False):
         f, ax = plt.subplots()
         g, ax2 = plt.subplots()
 
-        ax.bar(x_vals, first_1[stimulus], yerr= sem_first_1[stimulus], label='control')
-        ax.bar(x_vals, first_2[stimulus], yerr= sem_first_2[stimulus], alpha=0.7, label='sleep deprived')
+        ax.bar(x_vals, first_1[stimulus], width=0.1, yerr= sem_first_1[stimulus], label='control')
+        ax.bar(x_vals, first_2[stimulus], width=0.1, yerr= sem_first_2[stimulus], alpha=0.7, label='sleep deprived')
 
-        ax2.bar(x_vals, first_correct_1[stimulus], yerr= sem_first_correct_1[stimulus], label='control')
-        ax2.bar(x_vals, first_correct_2[stimulus], yerr= sem_first_correct_2[stimulus], alpha=0.7, label='sleep deprived')
+        ax2.bar(x_vals, first_correct_1[stimulus], width=0.1,  yerr= sem_first_correct_1[stimulus], label='control')
+        ax2.bar(x_vals, first_correct_2[stimulus], width=0.1, yerr= sem_first_correct_2[stimulus], alpha=0.7, label='sleep deprived')
         
         ax.set_xlabel(f'Time'); ax2.set_xlabel(f'Time')
         ax.set_ylabel(f'Count'); ax2.set_ylabel(f'Count')
@@ -283,7 +283,7 @@ def plotHistogram(experiment, num_bins, prob=False):
 if __name__ == '__main__':
 
     experiment = 'd8_07_15_2021'
-    num_bins = 10
+    num_bins = 30
 
     main(experiment, num_bins)
     plotHistogram(experiment, num_bins)
