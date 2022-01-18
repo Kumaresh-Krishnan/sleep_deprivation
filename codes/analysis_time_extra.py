@@ -203,11 +203,11 @@ def plotHistogram(experiment, num_bins, prob=False):
         f, ax = plt.subplots()
         g, ax2 = plt.subplots()
 
-        ax.bar(x_vals, first_1[stimulus], yerr= sem_first_1, label='control')
-        ax.bar(x_vals, first_2[stimulus], yerr= sem_first_2, alpha=0.7, label='sleep deprived')
+        ax.bar(x_vals, first_1[stimulus], yerr= sem_first_1[stimulus], label='control')
+        ax.bar(x_vals, first_2[stimulus], yerr= sem_first_2[stimulus], alpha=0.7, label='sleep deprived')
 
-        ax2.hist(x_vals, first_correct_1[stimulus], yerr= sem_first_correct_1, label='control')
-        ax2.hist(x_vals, first_correct_2[stimulus], yerr= sem_first_correct_2, alpha=0.7, label='sleep deprived')
+        ax2.hist(x_vals, first_correct_1[stimulus], yerr= sem_first_correct_1[stimulus], label='control')
+        ax2.hist(x_vals, first_correct_2[stimulus], yerr= sem_first_correct_2[stimulus], alpha=0.7, label='sleep deprived')
         
         ax.set_xlabel(f'Time'); ax2.set_xlabel(f'Time')
         ax.set_ylabel(f'Count'); ax2.set_ylabel(f'Count')
@@ -259,11 +259,11 @@ def plotHistogram(experiment, num_bins, prob=False):
         f, ax = plt.subplots()
         g, ax2 = plt.subplots()
 
-        ax.bar(x_vals, first_1[stimulus], yerr= sem_first_1, label='control')
-        ax.bar(x_vals, first_2[stimulus], yerr= sem_first_2, alpha=0.7, label='sleep deprived')
+        ax.bar(x_vals, first_1[stimulus], yerr= sem_first_1[stimulus], label='control')
+        ax.bar(x_vals, first_2[stimulus], yerr= sem_first_2[stimulus], alpha=0.7, label='sleep deprived')
 
-        ax2.hist(x_vals, first_correct_1[stimulus], yerr= sem_first_correct_1, label='control')
-        ax2.hist(x_vals, first_correct_2[stimulus], yerr= sem_first_correct_2, alpha=0.7, label='sleep deprived')
+        ax2.hist(x_vals, first_correct_1[stimulus], yerr= sem_first_correct_1[stimulus], label='control')
+        ax2.hist(x_vals, first_correct_2[stimulus], yerr= sem_first_correct_2[stimulus], alpha=0.7, label='sleep deprived')
         
         ax.set_xlabel(f'Time'); ax2.set_xlabel(f'Time')
         ax.set_ylabel(f'Count'); ax2.set_ylabel(f'Count')
