@@ -104,7 +104,12 @@ def rate24(dpath):
     g2_night = data_2[:,14*30:34*30].mean(axis=1) # These have dimension fish x time series
     g2_d2 = data_2[:,35*30:48*30].mean(axis=1) # 2 dimension because trials are concatenated
 
-    
+    stat_d1 = ss.ttest_ind(g1_d1, g2_d1, equal_var=False)
+    stat_night = ss.ttest_ind(g1_night, g2_night, equal_var=False)
+    stat_d2 = ss.ttest_ind(g1_d2, g2_d2, equal_var=False)
+
+    print(stats_d1); print(stats_d1); print(stats_d1)
+    # How do we want to save this? Excel? Will look into it and add
     
     return 0
 

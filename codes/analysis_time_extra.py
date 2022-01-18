@@ -62,8 +62,8 @@ def headingAngle(raw_data, stimulus, experiment, num_bins):
         else:
             first_correct = first
 
-        first_hist = np.histogram(first, bins=num_bins, range=(0,1.0))
-        first_correct_hist = np.histogram(first_correct, bins=num_bins, range=(0,1.0))
+        first_hist, _ = np.histogram(first, bins=num_bins, range=(0,1.0))
+        first_correct_hist, _ = np.histogram(first_correct, bins=num_bins, range=(0,1.0))
 
         return first_hist, first_correct_hist
     
