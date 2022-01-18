@@ -62,16 +62,14 @@ def totalBout(dpath, stimuli):
     sleep = bout_loc.loc[bout_loc['Group']== 2]
     control = bout_loc.loc[bout_loc['Group']==1]
     stats_bout = ss.ttest_ind(sleep.Frequency, control.Frequency, equal_var=False)
-    print(stats_bout)
 
     sns.boxplot(x='Stimulus', y='Frequency', hue='Group', data=df_data, palette='Set3')
-    #plt.show()
 
     results = pg.rm_anova(dv='Frequency', within=['Stimulus','Group'], subject='ID', data=df_data, detailed=True)
-    print(results)
     save_dir = path.Path() / '..' / experiment
-    doc_name = save_dir + '/bouts_stats.xlsx'
+    doc_name = save_dir / 'bouts_stats.xlsx'
     results.to_excel(doc_name, index=False)
+    
     return 0
 
 def correctness(dpath, stimuli):
@@ -81,16 +79,13 @@ def correctness(dpath, stimuli):
     data_2 = tmp['correct_2_raw']
 
     df_data = makeDf(data_1, data_2, stimuli, 'Correctness')
-    print(df_data.head())
     save_dir = path.Path() / '..' / experiment
 
     sns.boxplot(x='Stimulus', y='Correctness', hue='Group', data=df_data, palette='Set3')
-    #plt.show()
 
     results = pg.rm_anova(dv='Correctness', within=['Stimulus','Group'], subject='ID', data=df_data, detailed=True)
-    print(results)
 
-    doc_name = save_dir + '/correct_stats.xlsx'
+    doc_name = save_dir / 'correct_stats.xlsx'
     results.to_excel(doc_name, index=False)
 
     return 0
@@ -101,9 +96,15 @@ def rate24(dpath):
     data_1 = tmp['freq_1_raw']
     data_2 = tmp['freq_2_raw']
 
-    day_1 = data_1[:,0:14,:]
-    night = data_2[:,14:34,:]
-    day_2 = data_3[:,35:48,:]
+    g1_d1 = data_1[:,0:14*30].mean(axis=1) # test significance between 3 parts
+    g1_night = data_1[:,14*30:34*30].mean(axis=1) # These have dimension fish x time series
+    g1_d2 = data_1[:,35*30:48*30].mean(axis=1) # 2 dimension because trials are concatenated
+
+    g2_d1 = data_2[:,0:14*30].mean(axis=1) # test significance between 3 parts
+    g2_night = data_2[:,14*30:34*30].mean(axis=1) # These have dimension fish x time series
+    g2_d2 = data_2[:,35*30:48*30].mean(axis=1) # 2 dimension because trials are concatenated
+
+    
     
     return 0
 
@@ -130,15 +131,15 @@ def performance(dpath, stimuli):
 
         half = stimuli // 2
 
-        score_1 = (score_1[:,:half] + score_1[:,half:]) / 2.0
-        score_2 = (score_2[:,:half] + score_2[:,half:]) / 2.0
+        score_1 = (score_1[:,:half] + 1. - score_1[:,half:]) / 2.0
+        score_2 = (score_2[:,:half] + 1. -  score_2[:,half:]) / 2.0
         
     else:
 
         half = (stimuli - 1) // 2
 
-        score_1 = (score_1[:,:half] + score_1[:,half:-1]) / 2.0
-        score_2 = (score_2[:,:half] + score_2[:,half:-1]) / 2.0
+        score_1 = (score_1[:,:half] + 1. - score_1[:,half:-1]) / 2.0
+        score_2 = (score_2[:,:half] + 1. - score_2[:,half:-1]) / 2.0
 
     score_avg_1 = np.mean(score_1, axis=0)
     score_avg_2 = np.mean(score_2, axis=0)

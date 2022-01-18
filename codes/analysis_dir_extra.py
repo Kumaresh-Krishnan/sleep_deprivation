@@ -321,7 +321,7 @@ def boutFrequency(experiment, num_bins):
         ax.scatter(x_2, raw_2[:,i], color = 'grey')
     
     ax.set_xlabel('Stimulus')
-    ax.set_ylabel('Total number of bouts')
+    ax.set_ylabel('Total bout rate')
     ax.set_title('Total response to stimulus')
     ax.set_xticks(x_range)
     text = [str(x) for x in x_range]
@@ -367,10 +367,8 @@ def boutFrequency(experiment, num_bins):
 
     freq_1 = np.nanmean(raw_1, axis=0)
     sem_1 = 1.96*sem(raw_1, axis=0, nan_policy='omit')
-    #sem_1 = np.nanstd(raw_1, axis=0)
     freq_2 = np.nanmean(raw_2, axis=0)
     sem_2 = 1.96*sem(raw_2, axis=0, nan_policy='omit')
-    #sem_2 = np.nanstd(raw_2, axis=0)
 
     x_range = range(half)
     
