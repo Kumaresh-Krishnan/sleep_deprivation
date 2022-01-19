@@ -80,8 +80,11 @@ def processData(experiment, data):
     group_1 = info['control']
     group_2 = info['sleep']
 
-    responses_1 = group_1.sum(axis=1) / group_1.shape[1]
-    responses_2 = group_2.sum(axis=1) / group_2.shape[1]
+    data_1 = data[group_1]
+    data_2 = data[group_2]
+
+    responses_1 = data_1.sum(axis=1) / data_1.shape[1]
+    responses_2 = data_2.sum(axis=1) / data_2.shape[1]
 
     to_save = {}
     to_save['responses_1'] = responses_1
@@ -115,12 +118,16 @@ def plotResults(experiment):
     sns.set_style('white')
     sns.set_style('ticks')
     
-    f, (ax1, ax2) = plt.subplots(figsize=(10,12))
+    f, (ax1, ax2) = plt.subplots(1,2, figsize=(10,12))
 
-    ax1.matshow(data_1, cmap='Reds', vmin=0, vmax=1.0)
-    ax2.matshow(data_2, cmap='Reds', vmin=0, vmax=1.0)
-    ax1.set_title('Percentage response of fish for each stimulus - 30 trials')
-    ax1.legend(); ax2.legend()
+    m1 = ax1.imshow(data_1, cmap='Reds', vmin=0, vmax=1.0, label='control')
+    m2 = ax2.imshow(data_2, cmap='Reds', vmin=0, vmax=1.0, label='sleep deprived')
+    plt.suptitle('Percentage response of fish for each stimulus - 30 trials')
+    f.colorbar(m1, ax=ax1); f.colorbar(m2, ax=ax2)
+    ax1.set_title(f'Control fish: {data_1.mean() * 100:.2f}%')
+    ax2.set_title(f'Sleep deprived fish: {data_2.mean() * 100:.2f}%')
+    ax1.set_xlabel('Stimulus'); ax2.set_xlabel('Stimulus')
+    ax1.set_ylabel('Fish number'); ax2.set_ylabel('Fish number')
 
     f.savefig(save_dir / 'response_percentage.png')
     plt.close(f)

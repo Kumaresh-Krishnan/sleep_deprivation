@@ -211,7 +211,7 @@ def plotHistogram(experiment, num_bins, prob=False):
     for stimulus in range(half):
 
         f, (ax1, ax2) = plt.subplots(2, figsize=(10,12))
-
+        '''
         ax1.plot(np.linspace(0,10,num_bins), data_ib_1[stimulus], label='control', color = 'xkcd:greyish blue')
         ax1.plot(np.linspace(0,10,num_bins), data_ib_2[stimulus], label='sleep deprived', color = 'xkcd:aquamarine' )
 
@@ -237,13 +237,13 @@ def plotHistogram(experiment, num_bins, prob=False):
             data_bdist_2[stimulus]-sem_bdist_2[stimulus], \
             data_bdist_2[stimulus]+sem_bdist_2[stimulus], \
             color='gray', alpha=0.5)
-
+        '''
         
-        #ax1.bar(np.linspace(0,2,num_bins), data_ib_1[stimulus], label='control', color = 'xkcd:greyish blue')
-        #ax1.bar(np.linspace(0,2,num_bins), data_ib_2[stimulus], alpha=0.7, label='sleep deprived', color = 'xkcd:aquamarine' )
+        ax1.bar(np.linspace(0,10,num_bins), data_ib_1[stimulus], yerr=sem_ib_1, label='control', color = 'xkcd:greyish blue')
+        ax1.bar(np.linspace(0,10,num_bins), data_ib_2[stimulus], yerr=sem_ib_2, alpha=0.7, label='sleep deprived', color = 'xkcd:aquamarine' )
 
-        #ax2.bar(np.linspace(0,0.3,num_bins), data_bdist_1[stimulus], label='control', color = 'xkcd:greyish blue')
-        #ax2.bar(np.linspace(0,0.3,num_bins), data_bdist_2[stimulus], alpha=0.7, label='sleep deprived', color = 'xkcd:aquamarine' )
+        ax2.bar(np.linspace(0,0.15,num_bins), data_bdist_1[stimulus], yerr=sem_bdist_1, label='control', color = 'xkcd:greyish blue')
+        ax2.bar(np.linspace(0,0.15,num_bins), data_bdist_2[stimulus], yerr=sem_bdist_2, alpha=0.7, label='sleep deprived', color = 'xkcd:aquamarine' )
         
         ax1.set_xlabel(f'Time (s)'); ax2.set_xlabel('Distance (Normalized radius 1.0)')
         ax1.set_ylabel(f'Counts'); ax2.set_ylabel(f'Counts')
