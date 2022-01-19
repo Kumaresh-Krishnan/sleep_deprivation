@@ -26,32 +26,28 @@ def boutInfo(raw_data, stimulus, num_bins):
 
     start = 'bouts_start_stimulus_%03d'%(stimulus)
     end = 'bouts_end_stimulus_%03d'%(stimulus)
-    
-    try:
-        # Compute differences (convention uses start-end)
-        b = raw_data[end]['timestamp'] - raw_data[start]['timestamp']
-        pos_x = raw_data[end]['fish_position_x'] - raw_data[start]['fish_position_x']
-        pos_y = raw_data[end]['fish_position_y'] - raw_data[start]['fish_position_y']
-        bdist = np.sqrt(pos_x**2 + pos_y**2)
 
-        if b.size == 0:
-            return np.array([np.nan]*num_bins), np.array([np.nan]*num_bins)
+    # Compute differences (convention uses start-end)
+    b = raw_data[end]['timestamp'] - raw_data[start]['timestamp']
+    pos_x = raw_data[end]['fish_position_x'] - raw_data[start]['fish_position_x']
+    pos_y = raw_data[end]['fish_position_y'] - raw_data[start]['fish_position_y']
+    bdist = np.sqrt(pos_x**2 + pos_y**2)
 
-        ib = raw_data[start]['timestamp'][1:] - raw_data[end]['timestamp'][:-1]
-        pos_x = raw_data[start]['fish_position_x'][1:] - raw_data[end]['fish_position_x'][:-1]
-        pos_y = raw_data[start]['fish_position_y'][1:] - raw_data[end]['fish_position_y'][:-1]
-        ibdist = np.sqrt(pos_x**2 + pos_y**2)
-        
-        if ib.size == 0:
-            return np.array([np.nan]*num_bins), np.array([np.nan]*num_bins)
-
-        freq_ib, _ = np.histogram(ib, bins=num_bins, range=(0,10))
-        freq_bdist, _ = np.histogram(bdist, bins=num_bins, range=(0,0.15))
-
-        return freq_ib, freq_bdist
-    
-    except:
+    if b.size == 0:
         return np.array([np.nan]*num_bins), np.array([np.nan]*num_bins)
+
+    ib = raw_data[start]['timestamp'][1:] - raw_data[end]['timestamp'][:-1]
+    pos_x = raw_data[start]['fish_position_x'][1:] - raw_data[end]['fish_position_x'][:-1]
+    pos_y = raw_data[start]['fish_position_y'][1:] - raw_data[end]['fish_position_y'][:-1]
+    ibdist = np.sqrt(pos_x**2 + pos_y**2)
+    
+    if ib.size == 0:
+        return np.array([np.nan]*num_bins), np.array([np.nan]*num_bins)
+
+    freq_ib, _ = np.histogram(ib, bins=num_bins, range=(0,10))
+    freq_bdist, _ = np.histogram(bdist, bins=num_bins, range=(0,0.15))
+
+    return freq_ib, freq_bdist
 
 def extractAngles(experiment,root, num_bins):
 

@@ -28,47 +28,43 @@ def headingAngle(raw_data, stimulus, experiment, num_bins):
 
     id_map = hdf.loadmat(path.Path() / '..' / experiment / 'ID_map.mat')
     
-    try:
-        # Find bout timestamps and fish location at start
-        timestamps = raw_data[start]['timestamp']
-        pos_x = raw_data[start]['fish_position_x']
-        pos_y = raw_data[start]['fish_position_y']
+    # Find bout timestamps and fish location at start
+    timestamps = raw_data[start]['timestamp']
+    pos_x = raw_data[start]['fish_position_x']
+    pos_y = raw_data[start]['fish_position_y']
 
-        angles = raw_data[start]['fish_accumulated_orientation'] - \
-                           raw_data[end]['fish_accumulated_orientation']
+    angles = raw_data[start]['fish_accumulated_orientation'] - \
+                       raw_data[end]['fish_accumulated_orientation']
 
-        if angles.size == 0:
-            return first, first_correct
+    if angles.size == 0:
+        return first, first_correct
 
-        # Find time to first bout
+    # Find time to first bout
 
-        lim1, lim2 = 5.0, 15.00
-        first_loc = np.where((timestamps>lim1) & (timestamps<lim2))[0][0]
+    lim1, lim2 = 5.0, 15.00
+    first_loc = np.where((timestamps>lim1) & (timestamps<lim2))[0][0]
 
-        # First bout
-        if (pos_x[first_loc]**2 + pos_y[first_loc]**2) < 0.81:
-            first = timestamps[first_loc] - 5.0
+    # First bout
+    if (pos_x[first_loc]**2 + pos_y[first_loc]**2) < 0.81:
+        first = timestamps[first_loc] - 5.0
 
-        direction = id_map[str(stimulus)][0]
+    direction = id_map[str(stimulus)][0]
 
-        if direction == -1:
-            correct_loc = np.where((angles < 0) & (timestamps>lim1) & (timestamps<lim2))[0][0]
-            if (pos_x[correct_loc]**2 + pos_y[correct_loc]**2) < 0.81:
-                first_correct = timestamps[correct_loc] - 5.0
-        elif direction == 1:
-            correct_loc = np.where((angles > 0) & (timestamps>lim1) & (timestamps<lim2))[0][0]
-            if (pos_x[correct_loc]**2 + pos_y[correct_loc]**2) < 0.81:
-                first_correct = timestamps[correct_loc] - 5.0
-        else:
-            first_correct = first
+    if direction == -1:
+        correct_loc = np.where((angles < 0) & (timestamps>lim1) & (timestamps<lim2))[0][0]
+        if (pos_x[correct_loc]**2 + pos_y[correct_loc]**2) < 0.81:
+            first_correct = timestamps[correct_loc] - 5.0
+    elif direction == 1:
+        correct_loc = np.where((angles > 0) & (timestamps>lim1) & (timestamps<lim2))[0][0]
+        if (pos_x[correct_loc]**2 + pos_y[correct_loc]**2) < 0.81:
+            first_correct = timestamps[correct_loc] - 5.0
+    else:
+        first_correct = first
 
-        first_hist, _ = np.histogram(first, bins=num_bins, range=(0,3.0))
-        first_correct_hist, _ = np.histogram(first_correct, bins=num_bins, range=(0,3.0))
+    first_hist, _ = np.histogram(first, bins=num_bins, range=(0,3.0))
+    first_correct_hist, _ = np.histogram(first_correct, bins=num_bins, range=(0,3.0))
 
-        return first_hist, first_correct_hist
-    
-    except:
-        return np.nan, np.nan
+    return first_hist, first_correct_hist
 
 def extractAngles(experiment,root, num_bins):
 

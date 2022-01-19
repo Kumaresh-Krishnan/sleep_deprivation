@@ -26,38 +26,34 @@ def headingAngle(raw_data, stimulus, num_bins):
 
     start = 'bouts_start_stimulus_%03d'%(stimulus)
     end = 'bouts_end_stimulus_%03d'%(stimulus)
-    
-    try:
-        # Compute differences (convention uses start-end)
-        angles = raw_data[start]['fish_accumulated_orientation'] - \
-                           raw_data[end]['fish_accumulated_orientation']
 
-        if angles.size == 0:
-            return np.array([np.nan]*num_bins)
+    # Compute differences (convention uses start-end)
+    angles = raw_data[start]['fish_accumulated_orientation'] - \
+                       raw_data[end]['fish_accumulated_orientation']
 
-        # Find bout timestamps and fish location at start
-        timestamps = raw_data[start]['timestamp']
-        pos_x = raw_data[start]['fish_position_x']
-        pos_y = raw_data[start]['fish_position_y']
-
-        # Filter angles based on stimulus time and distance from edge of dish
-        # Normalize by exposure to stimulus and suitable scaling for numerical value
-        scale = 1000
-
-        lim1, lim2 = 5.0, 15.00
-        locs = np.where((timestamps>lim1) & (timestamps<lim2) & (pos_x**2 + pos_y**2 < 0.81))
-        normalizer = (lim2-lim1)/scale
-
-        angles = angles[locs]
-
-        # Restrict range to -180,180 and compute frequencies with specified num_bins
-        angles[angles > 180] -= 360
-        freq, _ = np.histogram(angles, bins=num_bins, range=(-180,180))
-
-        return freq/normalizer
-    
-    except:
+    if angles.size == 0:
         return np.array([np.nan]*num_bins)
+
+    # Find bout timestamps and fish location at start
+    timestamps = raw_data[start]['timestamp']
+    pos_x = raw_data[start]['fish_position_x']
+    pos_y = raw_data[start]['fish_position_y']
+
+    # Filter angles based on stimulus time and distance from edge of dish
+    # Normalize by exposure to stimulus and suitable scaling for numerical value
+    scale = 1000
+
+    lim1, lim2 = 5.0, 15.00
+    locs = np.where((timestamps>lim1) & (timestamps<lim2) & (pos_x**2 + pos_y**2 < 0.81))
+    normalizer = (lim2-lim1)/scale
+
+    angles = angles[locs]
+
+    # Restrict range to -180,180 and compute frequencies with specified num_bins
+    angles[angles > 180] -= 360
+    freq, _ = np.histogram(angles, bins=num_bins, range=(-180,180))
+
+    return freq/normalizer
 
 def extractAngles(experiment,root, num_bins):
 
@@ -77,7 +73,7 @@ def extractAngles(experiment,root, num_bins):
     for day_idx, day in enumerate(days):
 
         for f in range(fish[day_idx]):
-
+            
             for t in range(trials):
 
                 folder = root / f'{day}_fish{f+1:03d}' / 'raw_data' / f'trial{t:03d}.dat'
@@ -88,7 +84,7 @@ def extractAngles(experiment,root, num_bins):
                     
                     angles = headingAngle(raw_data, stimulus, num_bins)
                     data[fish_ctr, t, stimulus] = angles
-
+                    
                 tmp.close()
 
             fish_ctr += 1
