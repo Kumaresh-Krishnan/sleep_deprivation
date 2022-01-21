@@ -103,9 +103,9 @@ def processData(experiment, data):
     to_save = {}
 
     to_save['freq_1'] = freq_data_1
-    to_save['freq_sem_1'] = sem_data_1
+    to_save['freq_sem_1'] = sem_data_1.data if np.ma.is_masked(sem_data_1) else sem_data_1
     to_save['freq_2'] = freq_data_2
-    to_save['freq_sem_2'] = sem_data_2
+    to_save['freq_sem_2'] = sem_data_2.data if np.ma.is_masked(sem_data_2) else sem_data_2
     to_save['freq_1_raw'] = data[group_1]
     to_save['freq_2_raw'] = data[group_2]
     
