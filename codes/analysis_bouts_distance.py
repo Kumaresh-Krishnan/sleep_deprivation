@@ -278,8 +278,8 @@ def plotHistogram(experiment, num_bins, prob=False):
 
     f, ax = plt.subplots()
 
-    ax.bar(np.linspace(0,10,num_bins), raw_ib_1.mean(axis=(0,2)), yerr= sem(raw_ib_1.mean(axis=2), axis=0), label='control', color = 'xkcd:greyish blue')
-    ax.bar(np.linspace(0,10,num_bins), raw_ib_2.mean(axis=(0,2)), yerr= sem(raw_ib_2.mean(axis=2), axis=0), label='sleep deprived', color = 'xkcd:aquamarine')
+    ax.bar(range(raw_ib_1.shape[1]), raw_ib_1.mean(axis=(0,2)), yerr= sem(raw_ib_1.mean(axis=2), axis=0), label='control', color = 'xkcd:greyish blue')
+    ax.bar(range(raw_ib_1.shape[1]), raw_ib_2.mean(axis=(0,2)), yerr= sem(raw_ib_2.mean(axis=2), axis=0), label='sleep deprived', color = 'xkcd:aquamarine')
 
     ax.set_xlabel(f'Time (s)')
     ax.set_ylabel(f'Average interbout interval')
@@ -295,7 +295,7 @@ def plotHistogram(experiment, num_bins, prob=False):
 
 if __name__ == '__main__':
 
-    experiment = 'd8_07_14_2021'
+    experiment = 'd8_01_20_2022_2%EtOH'
     num_bins = 50
 
     main(experiment, num_bins)
