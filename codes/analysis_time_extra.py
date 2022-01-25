@@ -313,7 +313,8 @@ def plotHistogram(experiment, num_bins, prob=False):
         ax2.set_title(f'{id_map[str(stimulus)][0]} Stimulus - Time to first correct bout')
         ax.legend(); ax2.legend()
         ax.grid(False); ax2.grid(False)
-        sns.despine(top=True, right=True)
+        sns.despine(ax=ax, top=True, right=True)
+        sns.despine(ax=ax2, top=True, right=True)
 
         f.savefig(save_dir_db / f'fig_{stimulus}_{id_map[str(stimulus)][0]}_{id_map[str(stimulus)][1]}_first.png')
         g.savefig(save_dir_db / f'fig_{stimulus}_{id_map[str(stimulus)][0]}_{id_map[str(stimulus)][1]}_first_correct.png')
