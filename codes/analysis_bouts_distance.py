@@ -196,8 +196,8 @@ def plotHistogram(experiment, num_bins, prob=False):
         sem_bdist_1 = np.sqrt((sem_bdist_1[:half]**2 + sem_bdist_1[half:]**2) / 2.0)
         sem_bdist_2 = np.sqrt((sem_bdist_2[:half]**2 + sem_bdist_2[half:]**2) / 2.0)
 
-        raw_ib_1 = (raw_ib_1[:half] + raw_ib_1[half:]) / 2.0
-        raw_ib_2 = (raw_ib_2[:half] + raw_ib_2[half:]) / 2.0
+        raw_ib_1 = (raw_ib_1[:,:half] + raw_ib_1[:,half:]) / 2.0
+        raw_ib_2 = (raw_ib_2[:,:half] + raw_ib_2[:,half:]) / 2.0
 
     else:
 
@@ -213,8 +213,8 @@ def plotHistogram(experiment, num_bins, prob=False):
         sem_bdist_1 = np.sqrt((sem_bdist_1[:half]**2 + sem_bdist_1[half:-1]**2) / 2.0)
         sem_bdist_2 = np.sqrt((sem_bdist_2[:half]**2 + sem_bdist_2[half:-1]**2) / 2.0)
 
-        raw_ib_1 = (raw_ib_1[:half] + raw_ib_1[half:-1]) / 2.0
-        raw_ib_2 = (raw_ib_2[:half] + raw_ib_2[half:-1]) / 2.0
+        raw_ib_1 = (raw_ib_1[:,:half] + raw_ib_1[:,half:-1]) / 2.0
+        raw_ib_2 = (raw_ib_2[:,:half] + raw_ib_2[:,half:-1]) / 2.0
 
     if prob:
         norm = data_ib_1.sum(axis=1).reshape(-1,1)

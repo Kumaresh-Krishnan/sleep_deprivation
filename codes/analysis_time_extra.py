@@ -244,14 +244,14 @@ def plotHistogram(experiment, num_bins, prob=False):
         first_1 = (first_1[:half] + first_1[half:]) / 2.0
         first_2 = (first_2[:half] + first_2[half:]) / 2.0
 
-        sem_first_1 = np.sqrt(sem_first_1[:half]**2 + sem_first_1[half:]**2) / 2.0)
-        sem_first_2 = np.sqrt(sem_first_2[:half]**2 + sem_first_2[half:]**2) / 2.0)
+        sem_first_1 = np.sqrt((sem_first_1[:half]**2 + sem_first_1[half:]**2) / 2.0)
+        sem_first_2 = np.sqrt((sem_first_2[:half]**2 + sem_first_2[half:]**2) / 2.0)
 
         first_correct_1 = (first_correct_1[:half] + first_correct_1[half:]) / 2.0
         first_correct_2 = (first_correct_2[:half] + first_correct_2[half:]) / 2.0
 
-        sem_first_correct_1 = np.sqrt(sem_first_correct_1[:half]**2 + sem_first_correct_1[half:]**2) / 2.0)
-        sem_first_correct_2 = np.sqrt(sem_first_correct_2[:half]**2 + sem_first_correct_2[half:]**2) / 2.0)
+        sem_first_correct_1 = np.sqrt((sem_first_correct_1[:half]**2 + sem_first_correct_1[half:]**2) / 2.0)
+        sem_first_correct_2 = np.sqrt((sem_first_correct_2[:half]**2 + sem_first_correct_2[half:]**2) / 2.0)
 
     else:
 
@@ -260,14 +260,14 @@ def plotHistogram(experiment, num_bins, prob=False):
         first_1 = (first_1[:half] + first_1[half:-1]) / 2.0
         first_2 = (first_2[:half] + first_2[half:-1]) / 2.0
 
-        sem_first_1 = np.sqrt(sem_first_1[:half]**2 + sem_first_1[half:-1]**2) / 2.0)
-        sem_first_2 = np.sqrt(sem_first_2[:half]**2 + sem_first_2[half:-1]**2) / 2.0)
+        sem_first_1 = np.sqrt((sem_first_1[:half]**2 + sem_first_1[half:-1]**2) / 2.0)
+        sem_first_2 = np.sqrt((sem_first_2[:half]**2 + sem_first_2[half:-1]**2) / 2.0)
 
         first_correct_1 = (first_correct_1[:half] + first_correct_1[half:-1]) / 2.0
         first_correct_2 = (first_correct_2[:half] + first_correct_2[half:-1]) / 2.0
 
-        sem_first_correct_1 = np.sqrt(sem_first_correct_1[:half]**2 + sem_first_correct_1[half:-1]**2) / 2.0)
-        sem_first_correct_2 = np.sqrt(sem_first_correct_2[:half]**2 + sem_first_correct_2[half:-1]**2) / 2.0)
+        sem_first_correct_1 = np.sqrt((sem_first_correct_1[:half]**2 + sem_first_correct_1[half:-1]**2) / 2.0)
+        sem_first_correct_2 = np.sqrt((sem_first_correct_2[:half]**2 + sem_first_correct_2[half:-1]**2) / 2.0)
 
     norm_1 = first_1.sum(axis=1)
     norm_2 = first_2.sum(axis=1)
@@ -279,12 +279,32 @@ def plotHistogram(experiment, num_bins, prob=False):
         f, ax = plt.subplots()
         g, ax2 = plt.subplots()
 
-        ax.bar(x_vals, first_1[stimulus] / norm_1[stimulus], width=0.1, yerr= sem_first_1[stimulus] / norm_1[stimulus], label='control', color = 'xkcd:greyish blue')
-        ax.bar(x_vals, first_2[stimulus] / norm_2[stimulus], width=0.1, yerr= sem_first_2[stimulus] / norm_2[stimulus], alpha=0.7, label='sleep deprived', color = 'xkcd:aquamarine' )
+        ax.plot(x_vals, first_1[stimulus], label='control', color='xkcd:greyish blue')
+        ax.plot(x_vals, first_2[stimulus], label='sleep deprived', color='xkcd:aquamarine')
 
-        ax2.bar(x_vals, first_correct_1[stimulus] / norm_c_1[stimulus], width=0.1,  yerr= sem_first_correct_1[stimulus] / norm_c_1[stimulus], label='control', color = 'xkcd:greyish blue')
-        ax2.bar(x_vals, first_correct_2[stimulus] / norm_c_2[stimulus], width=0.1, yerr= sem_first_correct_2[stimulus] / norm_c_2[stimulus], alpha=0.7, label='sleep deprived', color = 'xkcd:aquamarine' ))
+        ax2.plot(x_vals, first_correct_1[stimulus], label='control', color='xkcd:greyish blue')
+        ax2.plot(x_vals, first_correct_2[stimulus], label='sleep deprived', color='xkcd:aquamarine')
+
+        ax.fill_between(x_vals, \
+        first_1[stimulus]-sem_first_1[stimulus], \
+        first_1[stimulus]+sem_first_1[stimulus], \
+        color='gray', alpha=0.5)
         
+        ax.fill_between(x_vals, \
+        first_2[stimulus]-sem_first_2[stimulus], \
+        first_2[stimulus]+sem_first_2[stimulus], \
+        color='gray', alpha=0.5)
+
+        ax2.fill_between(x_vals, \
+        first_correct_1[stimulus]-sem_first_correct_1[stimulus], \
+        first_correct_1[stimulus]+sem_first_correct_1[stimulus], \
+        color='gray', alpha=0.5)
+
+        ax2.fill_between(x_vals, \
+        first_correct_2[stimulus]-sem_first_correct_2[stimulus], \
+        first_correct_2[stimulus]+sem_first_correct_2[stimulus], \
+        color='gray', alpha=0.5)
+
         ax.set_xlabel(f'Time'); ax2.set_xlabel(f'Time')
         ax.set_ylabel(f'Count'); ax2.set_ylabel(f'Count')
         ax.set_title(f'{id_map[str(stimulus)][0]} Stimulus - Time to first bout')
