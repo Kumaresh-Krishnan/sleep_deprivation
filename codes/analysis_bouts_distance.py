@@ -118,14 +118,14 @@ def processAngles(experiment, data_ib, data_bdist, num_bins):
     raw_ib_1 = np.nanmean(data_ib[group_1], axis=1)
     raw_ib_2 = np.nanmean(data_ib[group_2], axis=1)
 
-    sem_ib_1 = sem(raw_ib_1, axis=0, nan_policy='omit') / prob_ib_1
-    sem_ib_2 = sem(raw_ib_2, axis=0, nan_policy='omit') prob_ib_2
+    sem_ib_1 = sem(raw_ib_1, axis=0, nan_policy='omit') / norm_ib_1
+    sem_ib_2 = sem(raw_ib_2, axis=0, nan_policy='omit') / norm_ib_2
 
     raw_bdist_1 = np.nanmean(data_bdist[group_1], axis=1)
     raw_bdist_2 = np.nanmean(data_bdist[group_2], axis=1)
 
-    sem_bdist_1 = sem(raw_bdist_1, axis=0, nan_policy='omit') / prob_bdist_1
-    sem_bdist_2 = sem(raw_bdist_2, axis=0, nan_policy='omit') / prob_bdist_2
+    sem_bdist_1 = sem(raw_bdist_1, axis=0, nan_policy='omit') / norm_bdist_1
+    sem_bdist_2 = sem(raw_bdist_2, axis=0, nan_policy='omit') / norm_bdist_2
 
     to_save = {}
 
@@ -258,11 +258,11 @@ def plotHistogram(experiment, num_bins, prob=False):
             color='gray', alpha=0.5)
         '''
         
-        ax1.bar(np.linspace(0,10,num_bins), data_ib_1[stimulus], yerr=sem_ib_1, label='control', color = 'xkcd:greyish blue')
-        ax1.bar(np.linspace(0,10,num_bins), data_ib_2[stimulus], yerr=sem_ib_2, alpha=0.7, label='sleep deprived', color = 'xkcd:aquamarine' )
+        ax1.bar(np.linspace(0,10,num_bins), data_ib_1[stimulus], yerr=sem_ib_1[stimulus], label='control', color = 'xkcd:greyish blue')
+        ax1.bar(np.linspace(0,10,num_bins), data_ib_2[stimulus], yerr=sem_ib_2[stimulus], alpha=0.7, label='sleep deprived', color = 'xkcd:aquamarine' )
 
-        ax2.bar(np.linspace(0,0.15,num_bins), data_bdist_1[stimulus], yerr=sem_bdist_1, label='control', color = 'xkcd:greyish blue')
-        ax2.bar(np.linspace(0,0.15,num_bins), data_bdist_2[stimulus], yerr=sem_bdist_2, alpha=0.7, label='sleep deprived', color = 'xkcd:aquamarine' )
+        ax2.bar(np.linspace(0,0.15,num_bins), data_bdist_1[stimulus], yerr=sem_bdist_1[stimulus], label='control', color = 'xkcd:greyish blue')
+        ax2.bar(np.linspace(0,0.15,num_bins), data_bdist_2[stimulus], yerr=sem_bdist_2[stimulus], alpha=0.7, label='sleep deprived', color = 'xkcd:aquamarine' )
         
         ax1.set_xlabel(f'Time (s)'); ax2.set_xlabel('Distance (Normalized radius 1.0)')
         ax1.set_ylabel(f'Normalized Counts'); ax2.set_ylabel(f'Normalized Counts')
@@ -278,8 +278,8 @@ def plotHistogram(experiment, num_bins, prob=False):
 
     f, ax = plt.subplots()
 
-    ax.bar(np.linspace(0,10,num_bins), raw_ib_1.mean(axis=(0,2)), yerr= sem(raw_ib_1, axis=(0,2)), label='control', color = 'xkcd:greyish blue')
-    ax.bar(np.linspace(0,10,num_bins), raw_ib_2.mean(axis=(0,2)), yerr= sem(raw_ib_2, axis=(0,2)), label='sleep deprived', color = 'xkcd:aquamarine')
+    ax.bar(np.linspace(0,10,num_bins), raw_ib_1.mean(axis=(0,2)), yerr= sem(raw_ib_1.mean(axis=2), axis=0), label='control', color = 'xkcd:greyish blue')
+    ax.bar(np.linspace(0,10,num_bins), raw_ib_2.mean(axis=(0,2)), yerr= sem(raw_ib_2.mean(axis=2), axis=0), label='sleep deprived', color = 'xkcd:aquamarine')
 
     ax.set_xlabel(f'Time (s)')
     ax.set_ylabel(f'Average interbout interval')

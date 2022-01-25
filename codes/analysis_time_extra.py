@@ -24,7 +24,8 @@ def headingAngle(raw_data, stimulus, experiment, num_bins):
     start = 'bouts_start_stimulus_%03d'%(stimulus)
     end = 'bouts_end_stimulus_%03d'%(stimulus)
 
-    first = np.nan; first_correct = np.nan
+    first_hist = np.array([np.nan]*num_bins)
+    first_correct_hist = np.array([np.nan]*num_bins)
 
     id_map = hdf.loadmat(path.Path() / '..' / experiment / 'ID_map.mat')
     
@@ -37,31 +38,40 @@ def headingAngle(raw_data, stimulus, experiment, num_bins):
                        raw_data[end]['fish_accumulated_orientation']
 
     if angles.size == 0:
-        return first, first_correct
+        return first_hist, first_correct_hist
 
     # Find time to first bout
 
     lim1, lim2 = 5.0, 15.00
-    first_loc = np.where((timestamps>lim1) & (timestamps<lim2))[0][0]
+
+    filt = (timestamps>lim1) & (timestamps<lim2)
+
+    if filt.sum() != 0:
+        first_loc = np.where(filt)[0][0]
+    else:
+        return first_hist, first_correct_hist
 
     # First bout
     if (pos_x[first_loc]**2 + pos_y[first_loc]**2) < 0.81:
-        first = timestamps[first_loc] - 5.0
+        first = timestamps[first_loc] - lim1
+
+    first_hist, _ = np.histogram(first, bins=num_bins, range=(0,3.0))
 
     direction = id_map[str(stimulus)][0]
 
     if direction == -1:
-        correct_loc = np.where((angles < 0) & (timestamps>lim1) & (timestamps<lim2))[0][0]
-        if (pos_x[correct_loc]**2 + pos_y[correct_loc]**2) < 0.81:
-            first_correct = timestamps[correct_loc] - 5.0
+        filt = (angles < 0) & (timestamps>lim1) & (timestamps<lim2)
     elif direction == 1:
-        correct_loc = np.where((angles > 0) & (timestamps>lim1) & (timestamps<lim2))[0][0]
-        if (pos_x[correct_loc]**2 + pos_y[correct_loc]**2) < 0.81:
-            first_correct = timestamps[correct_loc] - 5.0
-    else:
-        first_correct = first
+        filt = (angles > 0) & (timestamps>lim1) & (timestamps<lim2)
 
-    first_hist, _ = np.histogram(first, bins=num_bins, range=(0,3.0))
+    if filt.sum() != 0:
+        correct_loc = np.where(filt)[0][0]
+    else:
+        return first_hist, first_correct_hist
+
+    if (pos_x[correct_loc]**2 + pos_y[correct_loc]**2) < 0.81:
+            first_correct = timestamps[correct_loc] - lim1
+
     first_correct_hist, _ = np.histogram(first_correct, bins=num_bins, range=(0,3.0))
 
     return first_hist, first_correct_hist
