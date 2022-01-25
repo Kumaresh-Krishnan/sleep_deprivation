@@ -210,6 +210,8 @@ def plotHistogram(experiment, num_bins, prob=False):
     os.makedirs(save_dir_db, exist_ok=True)
 
     sns.set()
+    sns.set_style('white')
+    sns.set_style('ticks')
 
     x_vals = np.linspace(0,3.0,num_bins)
 
@@ -309,8 +311,9 @@ def plotHistogram(experiment, num_bins, prob=False):
         ax.set_ylabel(f'Count'); ax2.set_ylabel(f'Count')
         ax.set_title(f'{id_map[str(stimulus)][0]} Stimulus - Time to first bout')
         ax2.set_title(f'{id_map[str(stimulus)][0]} Stimulus - Time to first correct bout')
-        ax.legend()
-        ax2.legend()
+        ax.legend(); ax2.legend()
+        ax.grid(False); ax2.grid(False)
+        sns.despine(top=True, right=True)
 
         f.savefig(save_dir_db / f'fig_{stimulus}_{id_map[str(stimulus)][0]}_{id_map[str(stimulus)][1]}_first.png')
         g.savefig(save_dir_db / f'fig_{stimulus}_{id_map[str(stimulus)][0]}_{id_map[str(stimulus)][1]}_first_correct.png')
