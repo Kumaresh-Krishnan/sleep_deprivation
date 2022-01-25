@@ -100,31 +100,47 @@ def processAngles(experiment, data_ib, data_bdist, num_bins):
     data_ib_1 = np.nanmean(data_ib[group_1], axis=(0,1))
     data_ib_2 = np.nanmean(data_ib[group_2], axis=(0,1))
 
+    norm_ib_1 = data_ib_1.sum(axis=1).reshape(-1,1)
+    norm_ib_2 = data_ib_2.sum(axis=1).reshape(-1,1)
+
+    prob_ib_1 = data_ib_1 / norm_ib_1
+    prob_ib_2 = data_ib_2 / norm_ib_2
+
     data_bdist_1 = np.nanmean(data_bdist[group_1], axis=(0,1))
     data_bdist_2 = np.nanmean(data_bdist[group_2], axis=(0,1))
 
-    sem_tmp_1 = np.nanmean(data_ib[group_1], axis=1)
-    sem_tmp_2 = np.nanmean(data_ib[group_2], axis=1)
+    norm_bdist_1 = data_bdist_1.sum(axis=1).reshape(-1,1)
+    norm_bdist_2 = data_bdist_2.sum(axis=1).reshape(-1,1)
 
-    sem_ib_1 = sem(sem_tmp_1, axis=0, nan_policy='omit')
-    sem_ib_2 = sem(sem_tmp_2, axis=0, nan_policy='omit')
+    prob_bdist_1 = data_bdist_1 / norm_bdist_1
+    prob_bdist_2 = data_bdist_2 / norm_bdist_2
 
-    sem_tmp_1 = np.nanmean(data_bdist[group_1], axis=1)
-    sem_tmp_2 = np.nanmean(data_bdist[group_2], axis=1)
+    raw_ib_1 = np.nanmean(data_ib[group_1], axis=1)
+    raw_ib_2 = np.nanmean(data_ib[group_2], axis=1)
 
-    sem_bdist_1 = sem(sem_tmp_1, axis=0, nan_policy='omit')
-    sem_bdist_2 = sem(sem_tmp_2, axis=0, nan_policy='omit')
+    sem_ib_1 = sem(raw_ib_1, axis=0, nan_policy='omit') / prob_ib_1
+    sem_ib_2 = sem(raw_ib_2, axis=0, nan_policy='omit') prob_ib_2
+
+    raw_bdist_1 = np.nanmean(data_bdist[group_1], axis=1)
+    raw_bdist_2 = np.nanmean(data_bdist[group_2], axis=1)
+
+    sem_bdist_1 = sem(raw_bdist_1, axis=0, nan_policy='omit') / prob_bdist_1
+    sem_bdist_2 = sem(raw_bdist_2, axis=0, nan_policy='omit') / prob_bdist_2
 
     to_save = {}
 
-    to_save['ib_1'] = data_ib_1
-    to_save['ib_2'] = data_ib_2
+    to_save['ib_1'] = prob_ib_1
+    to_save['ib_2'] = prob_ib_2
     to_save['sem_ib_1'] = sem_ib_1
     to_save['sem_ib_2'] = sem_ib_2
-    to_save['bdist_1'] = data_bdist_1
-    to_save['bdist_2'] = data_bdist_2
+    to_save['bdist_1'] = prob_bdist_1
+    to_save['bdist_2'] = prob_bdist_2
     to_save['sem_bdist_1'] = sem_bdist_1
     to_save['sem_bdist_2'] = sem_bdist_2
+    to_save['raw_ib_1'] = raw_ib_1
+    to_save['raw_ib_2'] = raw_ib_2
+    to_save['raw_bdist_1'] = raw_bdist_1
+    to_save['raw_bdist_2'] = raw_bdist_2
     
     return to_save
 
@@ -158,6 +174,9 @@ def plotHistogram(experiment, num_bins, prob=False):
     data_bdist_2 = tmp['bdist_2']
     sem_bdist_1 = tmp['sem_bdist_1']
     sem_bdist_2 = tmp['sem_bdist_2']
+
+    raw_ib_1 = tmp['raw_ib_1']
+    raw_ib_2 = tmp['raw_ib_2']
     
     save_dir = path.Path() / '..' / experiment / f'bouts_distance_histograms_{num_bins}'
 
@@ -246,7 +265,7 @@ def plotHistogram(experiment, num_bins, prob=False):
         ax2.bar(np.linspace(0,0.15,num_bins), data_bdist_2[stimulus], yerr=sem_bdist_2, alpha=0.7, label='sleep deprived', color = 'xkcd:aquamarine' )
         
         ax1.set_xlabel(f'Time (s)'); ax2.set_xlabel('Distance (Normalized radius 1.0)')
-        ax1.set_ylabel(f'Counts'); ax2.set_ylabel(f'Counts')
+        ax1.set_ylabel(f'Normalized Counts'); ax2.set_ylabel(f'Normalized Counts')
         
         ax1.set_title(f'{id_map[str(half+stimulus)][0]} Stimulus {id_map[str(half+stimulus)][1]} % - Interbout Intervals')
         ax2.set_title(f'{id_map[str(half+stimulus)][0]} Stimulus {id_map[str(half+stimulus)][1]} % - Bout distance')
@@ -257,6 +276,21 @@ def plotHistogram(experiment, num_bins, prob=False):
         f.savefig(save_dir / f'fig_{id_map[str(half+stimulus)][0]}_{id_map[str(half+stimulus)][1]}_grey.pdf')
         plt.close(f)
 
+    f, ax = plt.subplots()
+
+    ax.bar(np.linspace(0,10,num_bins), raw_ib_1.mean(axis=(0,2)), yerr= sem(raw_ib_1, axis=(0,2)), label='control', color = 'xkcd:greyish blue')
+    ax.bar(np.linspace(0,10,num_bins), raw_ib_2.mean(axis=(0,2)), yerr= sem(raw_ib_2, axis=(0,2)), label='sleep deprived', color = 'xkcd:aquamarine')
+
+    ax.set_xlabel(f'Time (s)')
+    ax.set_ylabel(f'Average interbout interval')
+    ax.set_title('Average interbout interval for each stimulus')
+    ax.legend()
+    ax.grid(False)
+    sns.despine(top=True, right=True)
+
+    f.savefig(save_dir / f'fig_avg_ib_interval.pdf')
+    plt.close(f)
+    
     return 0
 
 if __name__ == '__main__':
