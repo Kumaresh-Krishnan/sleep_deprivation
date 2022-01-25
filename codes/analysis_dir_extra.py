@@ -294,8 +294,8 @@ def boutFrequency(experiment, num_bins):
 
     freq_1 = tmp['freq_1']
     freq_2 = tmp['freq_2']
-    sem_1 = 1.96*tmp['freq_sem_1']
-    sem_2 = 1.96*tmp['freq_sem_2']
+    sem_1 = tmp['freq_sem_1']
+    sem_2 = tmp['freq_sem_2']
     raw_1 = tmp['freq_1_raw']
     raw_2 = tmp['freq_2_raw']
     
