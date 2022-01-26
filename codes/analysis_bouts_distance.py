@@ -27,18 +27,21 @@ def boutInfo(raw_data, stimulus, num_bins):
     start = 'bouts_start_stimulus_%03d'%(stimulus)
     end = 'bouts_end_stimulus_%03d'%(stimulus)
 
-    # Compute differences (convention uses start-end)
-    b = raw_data[end]['timestamp'] - raw_data[start]['timestamp']
-    pos_x = raw_data[end]['fish_position_x'] - raw_data[start]['fish_position_x']
-    pos_y = raw_data[end]['fish_position_y'] - raw_data[start]['fish_position_y']
+    # Compute differences (convention uses start-end for angles)
+    lim1, lim2 = 5.0, 15.0
+    filt = (raw_data[start]['timestamp'] > lim1) & (raw_data[start]['timestamp'] < lim2)
+    b = raw_data[end]['timestamp'][filt] - raw_data[start]['timestamp'][filt]
+    pos_x = raw_data[end]['fish_position_x'][filt] - raw_data[start]['fish_position_x'][filt]
+    pos_y = raw_data[end]['fish_position_y'][filt] - raw_data[start]['fish_position_y'][filt]
     bdist = np.sqrt(pos_x**2 + pos_y**2)
 
     if b.size == 0:
         return np.array([np.nan]*num_bins), np.array([np.nan]*num_bins)
-
-    ib = raw_data[start]['timestamp'][1:] - raw_data[end]['timestamp'][:-1]
-    pos_x = raw_data[start]['fish_position_x'][1:] - raw_data[end]['fish_position_x'][:-1]
-    pos_y = raw_data[start]['fish_position_y'][1:] - raw_data[end]['fish_position_y'][:-1]
+        
+    filt = (raw_data[start]['timestamp'][1:] > lim1) & (raw_data[start]['timestamp'][1:] < lim2)
+    ib = raw_data[start]['timestamp'][1:][filt] - raw_data[end]['timestamp'][:-1][filt]
+    pos_x = raw_data[start]['fish_position_x'][1:][filt] - raw_data[end]['fish_position_x'][:-1][filt]
+    pos_y = raw_data[start]['fish_position_y'][1:][filt] - raw_data[end]['fish_position_y'][:-1][filt]
     ibdist = np.sqrt(pos_x**2 + pos_y**2)
     
     if ib.size == 0:
@@ -263,13 +266,6 @@ def plotHistogram(experiment, num_bins, prob=False):
             data_bdist_2[stimulus]+sem_bdist_2[stimulus], \
             color='gray', alpha=0.5)
         
-        '''
-        ax1.bar(np.linspace(0,10,num_bins), data_ib_1[stimulus], yerr=sem_ib_1[stimulus], label='control', color = 'xkcd:greyish blue')
-        ax1.bar(np.linspace(0,10,num_bins), data_ib_2[stimulus], yerr=sem_ib_2[stimulus], alpha=0.7, label='sleep deprived', color = 'xkcd:aquamarine' )
-
-        ax2.bar(np.linspace(0,0.15,num_bins), data_bdist_1[stimulus], yerr=sem_bdist_1[stimulus], label='control', color = 'xkcd:greyish blue')
-        ax2.bar(np.linspace(0,0.15,num_bins), data_bdist_2[stimulus], yerr=sem_bdist_2[stimulus], alpha=0.7, label='sleep deprived', color = 'xkcd:aquamarine' )
-        '''
         ax1.set_xlabel(f'Time (s)'); ax2.set_xlabel('Distance (Normalized radius 1.0)')
         ax1.set_ylabel(f'Normalized Counts'); ax2.set_ylabel(f'Normalized Counts')
         
