@@ -362,9 +362,9 @@ def boutFrequency(experiment, num_bins):
         '''
 
     freq_1 = np.nanmean(raw_1, axis=0)
-    sem_1 = 1.96*sem(raw_1, axis=0, nan_policy='omit')
+    sem_1 = sem(raw_1, axis=0, nan_policy='omit')
     freq_2 = np.nanmean(raw_2, axis=0)
-    sem_2 = 1.96*sem(raw_2, axis=0, nan_policy='omit')
+    sem_2 = sem(raw_2, axis=0, nan_policy='omit')
 
     x_range = range(half)
     
