@@ -153,13 +153,13 @@ def processAngles(experiment, data_first, data_first_correct):
 
     to_save = {}
     to_save['avg_first_1'] = avg_first_1
-    to_save['sem_first_1'] = sem_first_1.data if np.ma.is_masked(sem_first_1) else sem_first_1
+    to_save['sem_first_1'] = sem_first_1.data if np.ma.isMaskedArray(sem_first_1) else sem_first_1
     to_save['avg_first_correct_1'] = avg_first_correct_1
-    to_save['sem_first_correct_1'] = sem_first_correct_1.data if np.ma.is_masked(sem_first_correct_1) else sem_first_correct_1
+    to_save['sem_first_correct_1'] = sem_first_correct_1.data if np.ma.isMaskedArray(sem_first_correct_1) else sem_first_correct_1
     to_save['avg_first_2'] = avg_first_2
-    to_save['sem_first_2'] = sem_first_2.data if np.ma.is_masked(sem_first_2) else sem_first_2
+    to_save['sem_first_2'] = sem_first_2.data if np.ma.isMaskedArray(sem_first_2) else sem_first_2
     to_save['avg_first_correct_2'] = avg_first_correct_2
-    to_save['sem_first_correct_2'] = sem_first_correct_2.data if np.ma.is_masked(sem_first_correct_2) else sem_first_correct_2
+    to_save['sem_first_correct_2'] = sem_first_correct_2.data if np.ma.isMaskedArray(sem_first_correct_2) else sem_first_correct_2
     
     return to_save
 
