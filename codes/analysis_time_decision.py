@@ -58,14 +58,9 @@ def headingAngle(raw_data, stimulus, experiment, num_bins):
         return first_hist, first_correct_hist
 
     first_hist, _ = np.histogram(first, bins=num_bins, range=(0,3.0))
-
-    direction = id_map[str(stimulus)][0]
-
-    if direction == -1:
-        filt = (angles < 0) & (timestamps>lim1) & (timestamps<lim2)
-    elif direction == 1:
-        filt = (angles > 0) & (timestamps>lim1) & (timestamps<lim2)
-
+    
+    filt = (np.abs(angles) > 20) & (timestamps>lim1) & (timestamps<lim2)
+    
     if filt.sum() != 0:
         correct_loc = np.where(filt)[0][0]
     else:
@@ -172,14 +167,14 @@ def main(experiment, num_bins):
 
     to_save = processAngles(experiment, data_first, data_first_correct)
 
-    save_dir = path.Path() / '..' / experiment / f'data_time'
+    save_dir = path.Path() / '..' / experiment / f'data_time_decision'
     hdf.savemat(save_dir, to_save, format='7.3', oned_as='column', store_python_metadata=True)
 
     return 0
 
 def plotHistogram(experiment, num_bins, prob=False):
 
-    data_path = path.Path() / '..' / experiment / f'data_time'
+    data_path = path.Path() / '..' / experiment / f'data_time_decision'
     tmp = hdf.loadmat(data_path)
 
     first_1 = tmp['avg_first_1']
@@ -201,8 +196,8 @@ def plotHistogram(experiment, num_bins, prob=False):
 
     stimuli = first_1.shape[0]
 
-    save_dir = path.Path() / '..' / experiment / f'time_figures'
-    save_dir_db = path.Path() / '..' / experiment / f'doubled_time_figures'
+    save_dir = path.Path() / '..' / experiment / f'time_figures_decision'
+    save_dir_db = path.Path() / '..' / experiment / f'doubled_time_figures_decision'
 
     id_map = hdf.loadmat(path.Path() / '..' / experiment / 'ID_map.mat')
 
@@ -229,7 +224,7 @@ def plotHistogram(experiment, num_bins, prob=False):
         ax.set_xlabel(f'Time'); ax2.set_xlabel(f'Time')
         ax.set_ylabel(f'Probability'); ax2.set_ylabel(f'Probability')
         ax.set_title(f'{id_map[str(stimulus)][0]} Stimulus - Time to first bout')
-        ax2.set_title(f'{id_map[str(stimulus)][0]} Stimulus - Time to first correct bout')
+        ax2.set_title(f'{id_map[str(stimulus)][0]} Stimulus - Time to first decision')
         ax.legend()
         ax2.legend()
 
@@ -310,7 +305,7 @@ def plotHistogram(experiment, num_bins, prob=False):
         ax.set_xlabel(f'Time'); ax2.set_xlabel(f'Time')
         ax.set_ylabel(f'Probability'); ax2.set_ylabel(f'Probability')
         ax.set_title(f'{id_map[str(stimulus)][0]} Stimulus - Time to first bout')
-        ax2.set_title(f'{id_map[str(stimulus)][0]} Stimulus - Time to first correct bout')
+        ax2.set_title(f'{id_map[str(stimulus)][0]} Stimulus - Time to first decision')
         ax.legend(); ax2.legend()
         ax.grid(False); ax2.grid(False)
         sns.despine(ax=ax, top=True, right=True)
