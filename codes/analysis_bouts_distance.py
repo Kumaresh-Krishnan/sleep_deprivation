@@ -278,20 +278,25 @@ def plotHistogram(experiment, num_bins, prob=False):
         f.savefig(save_dir / f'fig_{id_map[str(half+stimulus)][0]}_{id_map[str(half+stimulus)][1]}_grey.pdf')
         plt.close(f)
 
-    f, ax = plt.subplots()
+    if not prob:
+        
+        mult = np.linspace(0,10,num_bins)
+        
+        f, ax = plt.subplots()
+        sem_1 = np.sqrt(np.sum(data_ib_1*(mult - np.sum(data_ib_1*mult, axis=1))**2)) / np.sqrt(num_bins)
+        sem_2 = np.sqrt(np.sum(data_ib_2*(mult - np.sum(data_ib_2*mult, axis=1))**2)) / np.sqrt(num_bins)
+        ax.bar(np.array(range(raw_ib_1.shape[1])), np.sum(data_ib_1*mult, axis=1), yerr= sem_1, width=0.5, label='control', color = 'xkcd:greyish blue')
+        ax.bar(np.array(range(raw_ib_2.shape[1]))+0.5, np.sum(data_ib_2*mult, axis=1), yerr= sem_2, axis=0), width=0.5, label='sleep deprived', color = 'xkcd:aquamarine')
 
-    ax.bar(np.array(range(raw_ib_1.shape[1])), raw_ib_1.mean(axis=(0,2)), yerr= sem(raw_ib_1.mean(axis=2), axis=0), width=0.5, label='control', color = 'xkcd:greyish blue')
-    ax.bar(np.array(range(raw_ib_2.shape[1]))+0.5, raw_ib_2.mean(axis=(0,2)), yerr= sem(raw_ib_2.mean(axis=2), axis=0), width=0.5, label='sleep deprived', color = 'xkcd:aquamarine')
+        ax.set_xlabel(f'Time (s)')
+        ax.set_ylabel(f'Average interbout interval')
+        ax.set_title('Average interbout interval for each stimulus')
+        ax.legend()
+        ax.grid(False)
+        sns.despine(top=True, right=True)
 
-    ax.set_xlabel(f'Time (s)')
-    ax.set_ylabel(f'Average interbout interval')
-    ax.set_title('Average interbout interval for each stimulus')
-    ax.legend()
-    ax.grid(False)
-    sns.despine(top=True, right=True)
-
-    f.savefig(save_dir / f'fig_avg_ib_interval.pdf')
-    plt.close(f)
+        f.savefig(save_dir / f'fig_avg_ib_interval.pdf')
+        plt.close(f)
     
     return 0
 
