@@ -304,7 +304,7 @@ def plotHistogram(experiment, num_bins, prob=False):
 
 if __name__ == '__main__':
 
-    experiment = 'd8_01_20_2022_2%EtOH'
+    experiment = 'd8_2021_07_08'
     num_bins = 50
 
     main(experiment, num_bins)
