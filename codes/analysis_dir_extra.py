@@ -53,7 +53,7 @@ def headingAngle(raw_data, stimulus, num_bins):
     angles[angles > 180] -= 360
     freq, _ = np.histogram(angles, bins=num_bins, range=(-180,180))
 
-    return freq/normalizer
+    return freq/normalizer/1000*60 # This is for bouts per minute
 
 def extractAngles(experiment,root, num_bins):
 
@@ -216,7 +216,7 @@ def plotHistogram(experiment, num_bins, prob=False):
         if prob == 1:
             ax.set_ylabel(f'Probability')
         else:
-            ax.set_ylabel(f'Frequency (mHz)')
+            ax.set_ylabel(f'Frequency (bpm)') # Changed to bouts per minute
         ax.set_title(f'{id_map[str(stimulus)][0]} Stimulus {id_map[str(stimulus)][1]} %, (Bin: 5$^\circ$)')
         ax.legend()
         #sns.color_palette("PuRd", as_cmap=True)
@@ -269,7 +269,7 @@ def plotHistogram(experiment, num_bins, prob=False):
         if prob == 1:
             ax.set_ylabel(f'Probability')
         else:
-            ax.set_ylabel(f'Frequency (mHz)')
+            ax.set_ylabel(f'Frequency (bpm)') # Changed to bouts per minute
         ax.set_title(f'{id_map[str(half+stimulus)][0]} Stimulus {id_map[str(half+stimulus)][1]} %, (Bin: 5$^\circ$)')
         ax.legend()
         ax.grid(False)
