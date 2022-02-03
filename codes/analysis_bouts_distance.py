@@ -280,11 +280,11 @@ def plotHistogram(experiment, num_bins, prob=False):
 
     if not prob:
         
-        mult = np.linspace(0,10,num_bins)
+        mult = np.tile(np.linspace(0,10,num_bins), (data_ib_1.shape[0],1))
         
         f, ax = plt.subplots()
-        sem_1 = np.sqrt(np.sum(data_ib_1*(mult - np.sum(data_ib_1*mult, axis=1))**2, axis=1)) / np.sqrt(num_bins)
-        sem_2 = np.sqrt(np.sum(data_ib_2*(mult - np.sum(data_ib_2*mult, axis=1))**2, axis=1)) / np.sqrt(num_bins)
+        sem_1 = np.sqrt(np.sum(data_ib_1*(mult - np.reshape(np.sum(data_ib_1*mult, axis=1))**2, (-1,1)), axis=1)) / np.sqrt(num_bins)
+        sem_2 = np.sqrt(np.sum(data_ib_2*(mult - np.reshape(np.sum(data_ib_1*mult, axis=1))**2, (-1,1)), axis=1)) / np.sqrt(num_bins)
         ax.bar(np.array(range(raw_ib_1.shape[1])), np.sum(data_ib_1*mult, axis=1), yerr= sem_1, width=0.5, label='control', color = 'xkcd:greyish blue')
         ax.bar(np.array(range(raw_ib_2.shape[1]))+0.5, np.sum(data_ib_2*mult, axis=1), yerr= sem_2, axis=0), width=0.5, label='sleep deprived', color = 'xkcd:aquamarine')
 
