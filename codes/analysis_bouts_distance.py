@@ -288,7 +288,7 @@ def plotHistogram(experiment, num_bins, prob=False):
         sem_2 = np.sqrt(np.sum(data_ib_2*(mult - np.reshape(np.sum(data_ib_2*mult, axis=1), (-1,1)))**2, axis=1)) / np.sqrt(num_bins)
         
         ax.bar(np.array(range(data_ib_1.shape[0])), np.sum(data_ib_1*mult, axis=1), yerr= sem_1, width=0.5, label='control', color = 'xkcd:greyish blue')
-        ax.bar(np.array(range(data_ib_2.shape[0]))+0.5, np.sum(data_ib_2*mult, axis=1), yerr= sem_2, axis=0), width=0.5, label='sleep deprived', color = 'xkcd:aquamarine')
+        ax.bar(np.array(range(data_ib_2.shape[0]))+0.5, np.sum(data_ib_2*mult, axis=1), yerr= sem_2, width=0.5, label='sleep deprived', color = 'xkcd:aquamarine')
 
         ax.set_xlabel(f'Time (s)')
         ax.set_ylabel(f'Average interbout interval')
